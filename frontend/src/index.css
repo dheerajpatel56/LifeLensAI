@@ -1,0 +1,171 @@
+@import 'tailwindcss';
+
+/* ---------------------------------------------------------------------------
+   LifeLens AI design tokens. See DESIGN.md for the rationale behind each role.
+   Dark-only by deliberate choice: the two real usage scenes (laptop at night,
+   projector in a dim room) are both low-light.
+   --------------------------------------------------------------------------- */
+@theme {
+  --color-base: oklch(0.17 0.022 275);
+  --color-base-deep: oklch(0.142 0.02 275);
+  --color-surface: oklch(0.213 0.023 275);
+  --color-raised: oklch(0.252 0.025 275);
+  --color-line: oklch(0.312 0.02 275);
+  --color-line-strong: oklch(0.392 0.024 275);
+
+  --color-ink: oklch(0.971 0.006 275);
+  --color-body: oklch(0.84 0.012 275);
+  --color-muted: oklch(0.672 0.018 275);
+  --color-faint: oklch(0.552 0.018 275);
+
+  --color-accent: oklch(0.646 0.178 285);
+  --color-accent-soft: oklch(0.432 0.112 285);
+  --color-accent-ink: oklch(0.812 0.1 285);
+  --color-cyan: oklch(0.76 0.123 215);
+  --color-positive: oklch(0.724 0.142 158);
+  --color-warning: oklch(0.79 0.144 78);
+  --color-negative: oklch(0.665 0.183 14);
+
+  --text-2xs: 0.6875rem;
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+
+  --radius-control: 6px;
+  --radius-panel: 10px;
+
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', 'Roboto Mono', monospace;
+
+  --ease-out-quart: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Semantic z-scale — never arbitrary values. */
+  --z-sticky: 20;
+  --z-sidebar: 30;
+  --z-overlay: 40;
+  --z-dialog: 50;
+  --z-toast: 60;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-line);
+  }
+
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-base);
+    color: var(--color-body);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    color: var(--color-ink);
+    text-wrap: balance;
+    letter-spacing: -0.02em;
+    font-weight: 600;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Metrics must not jitter as values change. */
+  .tnum,
+  table {
+    font-variant-numeric: tabular-nums;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  ::placeholder {
+    color: var(--color-muted);
+    opacity: 1;
+  }
+
+  ::selection {
+    background: var(--color-accent-soft);
+    color: var(--color-ink);
+  }
+
+  /* Native controls are kept, just themed — no reinvented affordances. */
+  input[type='range'] {
+    accent-color: var(--color-accent);
+  }
+}
+
+@layer utilities {
+  /* Content prose measure, per DESIGN.md. */
+  .measure {
+    max-width: 72ch;
+  }
+
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      var(--color-raised) 25%,
+      var(--color-line) 37%,
+      var(--color-raised) 63%
+    );
+    background-size: 400% 100%;
+    animation: skeleton-sweep 1.4s ease-in-out infinite;
+  }
+
+  @keyframes skeleton-sweep {
+    0% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0 50%;
+    }
+  }
+
+  .enter {
+    animation: enter 200ms var(--ease-out-quart) both;
+  }
+
+  @keyframes enter {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+
+  .skeleton {
+    animation: none;
+    background: var(--color-raised);
+  }
+}

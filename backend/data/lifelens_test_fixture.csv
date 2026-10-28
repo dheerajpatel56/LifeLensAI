@@ -1,0 +1,41 @@
+record_id,date,sleep_hours,sleep_quality,screen_time_hours,social_media_hours,study_work_hours,exercise_minutes,caffeine_servings,stress_score,mood_score,productivity_score,notes,profile
+demo-00001,2024-01-01,6.4,8,2.4,0.6,5.4,49,2,4,6,4,,consistent_routine
+demo-00002,2024-01-02,6.5,6,6.2,0.6,9.3,22,4,7,2,8,,high_workload_stress
+demo-00003,2024-01-03,8.1,7,3.2,0.7,5.5,94,2,3,10,10,,active_rested
+demo-00004,2024-01-04,8.9,7,3.1,1.1,6.2,44,2,4,8,9,,consistent_routine
+demo-00005,2024-01-05,8.5,6,4.5,1.8,6.7,32,0,2,3,9,,consistent_routine
+demo-00006,2024-01-06,6.0,4,9.5,5.2,1.5,0,5,5,2,5,,late_night_digital
+demo-00007,2024-01-07,7.9,7,4.6,1.7,2.2,48,2,3,8,10,,consistent_routine
+demo-00008,2024-01-08,3.9,8,11.7,8.7,3.9,1,3,7,5,3,,late_night_digital
+demo-00009,2024-01-09,7.1,5,10.5,5.2,4.1,32,4,7,4,5,,late_night_digital
+demo-00010,2024-01-10,8.5,2,6.4,3.6,0.9,6,4,5,1,5,,irregular_schedule
+demo-00011,2024-01-11,7.8,7,2.7,1.0,7.9,69,2,4,6,9,,consistent_routine
+demo-00012,2024-01-12,6.2,6,9.1,4.7,3.2,12,5,4,8,2,,late_night_digital
+demo-00013,2024-01-13,7.1,6,9.2,5.6,2.0,0,2,6,3,2,,late_night_digital
+demo-00014,2024-01-14,7.4,7,10.6,3.2,4.7,22,3,4,6,3,Mixed day.,irregular_schedule
+demo-00015,2024-01-15,5.8,6,6.9,2.2,11.5,11,2,8,4,4,Deadline crunch.,high_workload_stress
+demo-00016,2024-01-16,6.9,8,4.4,1.2,6.8,37,1,4,7,9,,consistent_routine
+demo-00017,2024-01-17,7.5,7,2.6,1.3,6.6,33,2,5,7,10,,consistent_routine
+demo-00018,2024-01-18,6.5,6,7.5,2.0,11.8,8,5,7,6,6,,high_workload_stress
+demo-00019,2024-01-19,5.6,3,9.0,4.6,6.5,1,3,4,6,6,,late_night_digital
+demo-00020,2024-01-20,8.7,8,6.1,1.1,2.2,29,1,2,8,10,Normal routine.,consistent_routine
+demo-00021,2024-01-21,7.6,8,5.1,2.0,2.1,60,1,3,8,7,,active_rested
+demo-00022,2024-01-22,7.5,8,3.6,1.3,7.5,40,2,1,5,10,,consistent_routine
+demo-00023,2024-01-23,7.6,8,5.1,2.0,5.8,10,0,3,7,6,,consistent_routine
+demo-00024,2024-01-24,6.7,8,7.8,3.5,3.0,54,1,5,7,7,,irregular_schedule
+demo-00025,2024-01-25,7.2,7,4.2,0.9,6.1,0,1,8,1,3,,irregular_schedule
+demo-00026,2024-01-26,8.7,7,5.1,2.0,8.1,58,2,2,8,6,,active_rested
+demo-00027,2024-01-27,5.2,6,10.4,4.6,3.3,14,3,7,2,4,,late_night_digital
+demo-00028,2024-01-28,8.8,2,8.2,4.9,2.9,8,3,7,1,1,,late_night_digital
+demo-00029,2024-01-29,9.1,6,9.0,4.4,9.4,0,1,4,9,7,,irregular_schedule
+demo-00030,2024-01-30,8.3,8,5.4,1.3,7.5,48,2,5,7,10,Normal routine.,consistent_routine
+demo-00031,2024-01-31,6.5,6,7.2,1.9,10.6,8,5,8,5,6,Deadline crunch.,high_workload_stress
+demo-00032,2024-02-01,5.3,4,8.2,2.3,9.0,20,3,9,1,6,,high_workload_stress
+demo-00033,2024-02-02,7.5,8,5.0,2.3,6.2,10,2,4,9,4,,consistent_routine
+demo-00034,2024-02-03,6.2,4,7.7,4.4,1.4,4,3,6,3,9,,late_night_digital
+demo-00035,2024-02-04,7.6,8,2.2,0.7,3.6,48,2,5,5,10,,consistent_routine
+demo-00036,2024-02-05,5.8,3,9.1,5.8,6.2,6,2,7,3,2,,late_night_digital
+demo-00037,2024-02-06,5.8,6,8.0,2.0,9.5,11,2,9,5,6,,high_workload_stress
+demo-00038,2024-02-07,4.3,4,12.9,7.8,2.9,21,4,5,5,3,,late_night_digital
+demo-00039,2024-02-08,6.0,3,8.5,1.9,7.4,19,3,7,6,3,Back-to-back sessions.,high_workload_stress
+demo-00040,2024-02-09,7.7,7,5.2,1.1,6.0,28,2,5,6,9,,consistent_routine
