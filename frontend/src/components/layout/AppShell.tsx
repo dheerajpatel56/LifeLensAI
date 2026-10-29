@@ -13,7 +13,7 @@ import {
 import clsx from 'clsx'
 import { DatasetBar } from './DatasetBar'
 import { useDataset } from '../../hooks/useDataset'
-import { enterRoute } from '../../utils/motion'
+import { enterRoute, settle } from '../../utils/motion'
 
 /**
  * Application chrome.
@@ -103,6 +103,20 @@ export function AppShell() {
     canvasRef.current?.scrollTo({ top: 0 })
     enterRoute(canvasRef.current)
   }, [location.pathname])
+
+  // If a route transition started while the document was hidden, rAF never ran
+  // and the canvas is still mid-fade. Restore it when the page comes back.
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === 'visible' && canvasRef.current) {
+        if (Number(getComputedStyle(canvasRef.current).opacity) < 1) {
+          settle(canvasRef.current)
+        }
+      }
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
+  }, [])
 
   return (
     <div className="workspace bg-base">

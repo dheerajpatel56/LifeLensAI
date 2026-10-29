@@ -110,26 +110,44 @@ Only overlays (dialog, toast, tooltip) get a shadow, under 6px blur.
 
 ## Motion
 
-anime.js v4, wrapped in `src/utils/motion.ts`. Three rules the module enforces:
+anime.js v4 plus CSS transitions, wrapped in `src/utils/motion.ts`. The module
+exists to enforce one rule above all others:
 
-1. **Everything respects `prefers-reduced-motion`** — reduced motion places the
-   element in its final state instead of animating.
-2. **Content is visible by default.** Helpers animate *from* a transform; they
-   never gate visibility on an animation completing, so a transition that never
-   fires cannot leave a blank panel.
-3. **140–260ms.** The user is in a task, not watching a show.
+> **An animation may never own visibility or state.**
 
-What is animated, and why each one earns it:
+Two real failures drove that. First, a panel that entered with `opacity: [0, 1]`
+could be stranded invisible: anime.js drives `requestAnimationFrame`, and rAF is
+parked whenever the page is not being composited — a background tab, an occluded
+window, a headless render. The tween wrote `opacity: 0` and never advanced.
+Second, routing a tab change through an animation's completion callback meant the
+tab did not switch at all when that callback never fired.
+
+So:
+
+- **Frame liveness is measured, not assumed.** `document.visibilityState` reports
+  "visible" for an occluded window whose frames are parked, so a heartbeat records
+  the last served frame. If none arrived recently, transitions are suppressed and
+  styles are applied directly, landing in the final state.
+- **Enter transitions are CSS.** The element's resting style is its default; a
+  transient `.anim-from` class supplies the start, a forced reflow gives the
+  browser something to interpolate from, and removing the class yields the visible
+  state. If nothing animates, the content is simply there.
+- **State changes never wait on motion.** The exit transition that precedes a tab
+  swap carries a watchdog, so the swap happens regardless.
+- **`prefers-reduced-motion` skips straight to the end state.**
+
+What is animated, and why each earns it:
 
 | Motion | Where | Why it is state, not decoration |
 |---|---|---|
-| Travelling indicator | Pattern explorer tabs | Shows which of a sequence is selected, and the distance between them. Axis-aware: horizontal when the strip is horizontal, vertical once the rail appears. |
-| Directional panel entry | Pattern explorer tabs | Enters from the direction of travel, so tabs read as positions in a sequence rather than unrelated screens. |
-| Staggered reveal | Results within a panel | Signals that a new result set arrived. |
-| Route settle | Canvas on navigation | A short settle, deliberately smaller than a tab change. |
-| Count-up | Overview figures | The figure changing *is* the information. |
+| Travelling indicator | Pattern explorer tabs | Shows which of a sequence is selected and the distance between them. Axis-aware: horizontal strip below 1024px, vertical once the rail appears. Driven by CSS custom properties on a transform. |
+| Exit, then directional enter | Pattern explorer tabs | The outgoing panel accelerates away, the incoming one enters from the direction of travel, so tabs read as positions in a sequence. |
+| Staggered reveal | Results within a panel | Signals that a new result set arrived, 45ms apart. |
+| Route settle | Canvas on navigation | Deliberately smaller than a tab change. |
+| Count-up | Overview figures | The figure changing *is* the information. anime.js drives it, and the real value is written first so a parked frame loop leaves the correct number. |
 
-No page-load choreography, no decorative motion, no bounce or elastic easing.
+Durations 160–280ms, `ease-out-quart` on entry, `ease-in` on exit. No page-load
+choreography, no bounce, no elastic.
 
 ## Components
 

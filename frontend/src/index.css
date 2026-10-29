@@ -183,6 +183,41 @@
     color: var(--color-muted);
   }
 
+  /* Enter transitions.
+     Driven by CSS rather than by JS-interpolated inline styles, because the
+     resting state must be the DEFAULT state: removing `.anim-from` leaves the
+     element visible even in an environment where frames never run (an occluded
+     window, a background tab, a headless render). A JS tween that starts at
+     opacity 0 can strand content invisible; this cannot. */
+  .anim-from {
+    opacity: 0;
+    transform: translate(var(--enter-x, 0), var(--enter-y, 0));
+  }
+
+  .anim-active {
+    transition:
+      opacity 220ms var(--ease-out-quart),
+      transform 220ms var(--ease-out-quart);
+  }
+
+  /* Travelling tab indicator. Position is written as a transform so the move is
+     compositor-friendly, and the final position is applied directly rather than
+     interpolated by a frame loop — if frames are parked it lands correctly, it
+     just does not slide. */
+  .indicator {
+    transform: translate(var(--ind-x, 0), var(--ind-y, 0));
+    width: var(--ind-w, 2px);
+    height: var(--ind-h, 2px);
+  }
+
+  .indicator-move {
+    transition:
+      transform 220ms var(--ease-out-quart),
+      width 220ms var(--ease-out-quart),
+      height 220ms var(--ease-out-quart),
+      opacity 160ms linear;
+  }
+
   .skeleton {
     background: linear-gradient(
       90deg,

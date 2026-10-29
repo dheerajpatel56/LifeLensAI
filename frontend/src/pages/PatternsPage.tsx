@@ -28,7 +28,7 @@ import {
 import { ClusterProjectionChart, RuleLiftChart, SERIES_COLORS } from '../components/charts'
 import { CorrelationHeatmap } from '../components/patterns/CorrelationHeatmap'
 import { evidenceLabel, formatPercent, formatSigned } from '../utils/format'
-import { enterPanel, moveIndicator } from '../utils/motion'
+import { canAnimate, enterPanel, exitPanel, moveIndicator, settle } from '../utils/motion'
 import type { CorrelationMethod, CorrelationPair } from '../types/api'
 
 type Tab = 'clusters' | 'correlations' | 'rules'
@@ -80,12 +80,49 @@ export function PatternsPage() {
     enterPanel(panelRef.current, direction, { stagger: true })
   }, [tab, activeIndex])
 
+  /**
+   * Safety net: if the panel is ever left mid-transition — the document was
+   * hidden when the animation started, so rAF never advanced it — put it back in
+   * its resting state as soon as the page is visible again. Without this a tab
+   * switched while the window was in the background stays blank on return.
+   */
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === 'visible' && panelRef.current) {
+        const faded = Number(getComputedStyle(panelRef.current).opacity) < 1
+        if (faded) {
+          settle(panelRef.current)
+          panelRef.current
+            .querySelectorAll<HTMLElement>('[data-stagger]')
+            .forEach((child) => settle(child))
+        }
+      }
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
+  }, [])
+
+  /**
+   * Tab selection runs the outgoing panel out first, then swaps. `exitPanel`
+   * guarantees the callback fires even when it cannot animate, so the tab can
+   * never get stuck.
+   */
+  const selectTab = (next: Tab) => {
+    if (next === tab) return
+    if (!canAnimate()) {
+      setTab(next)
+      return
+    }
+    const direction = Math.sign(TABS.findIndex((e) => e.id === next) - activeIndex)
+    exitPanel(panelRef.current, direction, () => setTab(next))
+  }
+
   const onTabKeyDown = (event: React.KeyboardEvent) => {
     const delta = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0
     if (!delta) return
     event.preventDefault()
     const next = TABS[(activeIndex + delta + TABS.length) % TABS.length]
-    setTab(next.id)
+    selectTab(next.id)
     tabRefs.current[next.id]?.focus()
   }
 
@@ -168,9 +205,9 @@ export function PatternsPage() {
               aria-selected={isActive}
               aria-controls={`panel-${id}`}
               tabIndex={isActive ? 0 : -1}
-              onClick={() => setTab(id)}
+              onClick={() => selectTab(id)}
               className={clsx(
-                'whitespace-nowrap pb-2 text-left text-xs transition-colors duration-150 lg:py-1.5 lg:pl-2.5',
+                'whitespace-nowrap pb-2 text-left text-xs transition-colors duration-200 lg:py-1.5 lg:pl-2.5',
                 isActive ? 'font-medium text-ink' : 'text-muted hover:text-body',
               )}
             >
@@ -181,8 +218,8 @@ export function PatternsPage() {
         <span
           ref={indicatorRef}
           aria-hidden
-          className="pointer-events-none absolute bottom-0 bg-accent lg:bottom-auto lg:top-0"
-          style={{ left: 0, width: 0, height: 2 }}
+          className="indicator pointer-events-none absolute bottom-0 left-0 bg-accent lg:bottom-auto lg:top-0"
+          style={{ opacity: 0 }}
         />
       </div>
 
