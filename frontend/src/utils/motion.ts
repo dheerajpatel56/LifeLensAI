@@ -66,6 +66,21 @@ export function canAnimate(): boolean {
   return framesRunning()
 }
 
+/**
+ * Remove the inline properties a JS tween leaves behind.
+ *
+ * This matters more than it looks: an inline `opacity: 1` beats `.anim-from
+ * { opacity: 0 }` on specificity, so writing the resting state inline before
+ * arming a CSS transition silently destroys the start value — the element then
+ * jumps to its final state with no animation at all. The classes can only do
+ * their job once the inline values are gone.
+ */
+function clearInline(element: HTMLElement): void {
+  for (const prop of ['opacity', 'transform', 'translate', 'scale', 'rotate']) {
+    element.style.removeProperty(prop)
+  }
+}
+
 /** Apply styles with transitions suppressed, so they take effect immediately. */
 function applyInstantly(element: HTMLElement, apply: () => void): void {
   const previous = element.style.transition
@@ -132,14 +147,16 @@ export function exitPanel(
  * run, the element is simply visible immediately. Nothing can strand it hidden.
  */
 function playEnter(element: HTMLElement, x: number, y: number, delay = 0): void {
-  // Clear any inline state an exit tween left behind.
-  utils.set(element, VISIBLE)
-
   if (!canAnimate()) {
     element.classList.remove('anim-from', 'anim-active')
     settle(element)
     return
   }
+
+  // Drop the inline values an exit tween left behind. Setting them to the
+  // resting state instead would out-specify `.anim-from` and kill the start
+  // value, which is exactly how this transition was silently doing nothing.
+  clearInline(element)
 
   element.style.setProperty('--enter-x', `${x}px`)
   element.style.setProperty('--enter-y', `${y}px`)
@@ -158,6 +175,7 @@ function playEnter(element: HTMLElement, x: number, y: number, delay = 0): void 
     element.style.transitionDelay = ''
     element.style.removeProperty('--enter-x')
     element.style.removeProperty('--enter-y')
+    clearInline(element)
   }
   element.addEventListener('transitionend', clear, { once: true })
   window.setTimeout(clear, DURATION.base + delay + 400)
