@@ -6,6 +6,7 @@ import { api, ApiError } from '../services/api'
 import { useAsync } from '../hooks/useApi'
 import { useDataset } from '../hooks/useDataset'
 import { PageHeader } from '../components/layout/PageHeader'
+import { Block, Canvas, Rail, RailGroup, Readout, Split } from '../components/layout/Workspace'
 import {
   Badge,
   Button,
@@ -15,7 +16,6 @@ import {
   DataTable,
   EmptyState,
   ErrorState,
-  Panel,
   Select,
   Skeleton,
 } from '../components/ui'
@@ -133,6 +133,103 @@ export function DatasetsPage() {
     }
   }
 
+  /** Source switch and the irreversible actions live together in the rail. */
+  const rail = (
+    <Rail>
+      <RailGroup label="Active dataset">
+        <div className="flex flex-col gap-1">
+          {(dataset?.available_sources ?? []).map((entry) => {
+            const isActive = dataset?.source === entry.source
+            return (
+              <button
+                key={entry.source}
+                type="button"
+                onClick={() => void selectSource(entry.source)}
+                aria-pressed={isActive}
+                className={clsx(
+                  'relative flex flex-col items-start gap-0.5 border px-2.5 py-2 text-left transition-colors duration-150',
+                  isActive
+                    ? 'border-line-strong bg-surface'
+                    : 'border-line hover:border-line-strong hover:bg-surface/60',
+                )}
+              >
+                {isActive && (
+                  <span aria-hidden className="absolute inset-y-0 left-0 w-0.5 bg-accent" />
+                )}
+                <span className="flex w-full items-center justify-between gap-2">
+                  <span className={clsx('text-xs', isActive ? 'text-ink' : 'text-body')}>
+                    {entry.source_label}
+                  </span>
+                  {entry.is_synthetic && <Badge tone="warning">Synthetic</Badge>}
+                </span>
+                <span className="tnum text-2xs text-muted">
+                  {entry.record_count.toLocaleString()} records
+                </span>
+                {entry.record_count === 0 && (
+                  <span className="text-2xs text-faint">empty — nothing to analyse</span>
+                )}
+              </button>
+            )
+          })}
+        </div>
+      </RailGroup>
+
+      {summary.data && (
+        <RailGroup label="Shape">
+          <div className="grid grid-cols-2 gap-3">
+            <Readout label="Records" value={summary.data.record_count.toLocaleString()} />
+            <Readout
+              label="Missing"
+              value={summary.data.total_missing_values.toLocaleString()}
+              tone={summary.data.total_missing_values > 0 ? 'default' : 'muted'}
+            />
+            <Readout label="Duplicate dates" value={summary.data.duplicate_date_count} />
+            <Readout
+              label="Outcomes"
+              value={summary.data.has_outcome_fields ? 'present' : 'missing'}
+              tone={summary.data.has_outcome_fields ? 'default' : 'muted'}
+            />
+          </div>
+          <p className="tnum text-2xs text-faint">
+            {formatDate(summary.data.date_start)} – {formatDate(summary.data.date_end)}
+          </p>
+        </RailGroup>
+      )}
+
+      <RailGroup label="Clear a dataset">
+        {resetTarget ? (
+          <ConfirmInline
+            question={`Permanently delete every record in “${
+              dataset?.available_sources.find((entry) => entry.source === resetTarget)?.source_label
+            }”?`}
+            confirmLabel="Delete them"
+            pending={resetting}
+            onConfirm={() => void handleReset()}
+            onCancel={() => setResetTarget(null)}
+          />
+        ) : (
+          <div className="flex flex-col gap-1">
+            {(dataset?.available_sources ?? []).map((entry) => (
+              <Button
+                key={entry.source}
+                variant="danger"
+                icon={<Trash2 className="size-3" />}
+                disabled={entry.record_count === 0}
+                onClick={() => setResetTarget(entry.source)}
+                className="justify-start"
+              >
+                Clear {entry.source_label.toLowerCase()}
+              </Button>
+            ))}
+          </div>
+        )}
+        <p className="text-2xs text-faint">
+          Irreversible. Each source clears on its own; the other two are untouched.
+        </p>
+      </RailGroup>
+    </Rail>
+  )
+
   return (
     <div>
       <PageHeader
@@ -160,58 +257,12 @@ export function DatasetsPage() {
         }
       />
 
-      <div className="flex flex-col gap-5">
-        {/* Source picker */}
-        <Panel
-          title="Which dataset am I analysing?"
-          description="Switching only changes what the analyses read. Nothing is deleted or merged."
-        >
-          <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(15rem,1fr))]">
-            {(dataset?.available_sources ?? []).map((entry) => {
-              const isActive = dataset?.source === entry.source
-              return (
-                <button
-                  key={entry.source}
-                  type="button"
-                  onClick={() => void selectSource(entry.source)}
-                  aria-pressed={isActive}
-                  className={clsx(
-                    'relative flex flex-col items-start gap-1 border px-3.5 py-2.5 text-left transition-colors duration-150',
-                    isActive
-                      ? 'border-line-strong bg-surface'
-                      : 'border-line hover:border-line-strong hover:bg-surface/60',
-                  )}
-                >
-                  {isActive && (
-                    <span aria-hidden className="absolute inset-x-0 top-0 h-0.5 bg-accent" />
-                  )}
-                  {isActive && (
-                    <span aria-hidden className="absolute inset-x-0 top-0 h-0.5 bg-accent" />
-                  )}
-                  <span className="flex w-full items-center justify-between gap-2">
-                    <span className={clsx('text-sm font-medium', isActive ? 'text-ink' : 'text-body')}>
-                      {entry.source_label}
-                    </span>
-                    {entry.is_synthetic && <Badge tone="warning">Synthetic</Badge>}
-                    {isActive && !entry.is_synthetic && <Badge tone="accent">Active</Badge>}
-                  </span>
-                  <span className="tnum text-xs text-muted">
-                    {entry.record_count.toLocaleString()} record(s)
-                  </span>
-                  {entry.record_count === 0 && (
-                    <span className="text-2xs text-faint">Empty — analyses will have nothing to read</span>
-                  )}
-                </button>
-              )
-            })}
-          </div>
-        </Panel>
-
-        {/* Summary */}
-        <Panel
-          title="Active dataset summary"
-          description="Counts, column coverage and missingness for the dataset currently being analysed."
-          actions={summary.data && <Badge tone="neutral">{summary.data.source_label}</Badge>}
+      <Split rail={rail}>
+        <Canvas>
+        <Block
+          label="Column coverage"
+          meta={summary.data ? summary.data.source_label : undefined}
+          note="Every column the analyses can read, with how much of it is actually present. A column missing on many days narrows the sample for any analysis that uses it."
         >
           {summary.loading && !summary.data ? (
             <Skeleton className="h-48" />
@@ -286,12 +337,11 @@ export function DatasetsPage() {
               </DataTable>
             </div>
           ) : null}
-        </Panel>
+        </Block>
 
-        {/* Import */}
-        <Panel
-          title="Import a CSV"
-          description="Files are parsed as text only and never executed. Every rejected row is reported with the reason."
+        <Block
+          label="Import a CSV"
+          note="Files are parsed as text only and never executed; the stored copy is written under a sanitised basename. Required columns are date, sleep_hours, mood_score and productivity_score. Common aliases (sleep, screen_time, social_media, study_hours, mood, productivity) are recognised automatically; anything else can be mapped by hand. Every rejected row is reported with its row number, field and reason — nothing is silently dropped or corrected."
         >
           <div className="flex flex-col gap-4">
             <div
@@ -456,23 +506,14 @@ export function DatasetsPage() {
               </div>
             )}
           </div>
-        </Panel>
+        </Block>
 
-        {/* Preview */}
-        <Panel
-          title="Dataset preview"
-          description="Paginated so a thousand-row dataset does not stall the page."
+        <Block
+          label="Preview"
           actions={
             preview.data && (
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="secondary"
-                  disabled={offset === 0}
-                  onClick={() => setOffset(Math.max(0, offset - PREVIEW_PAGE))}
-                >
-                  Previous
-                </Button>
-                <span className="tnum text-xs text-muted">
+              <div className="flex items-center gap-1.5">
+                <span className="tnum text-2xs text-faint">
                   {preview.data.total === 0
                     ? '0'
                     : `${offset + 1}–${Math.min(offset + PREVIEW_PAGE, preview.data.total)}`}{' '}
@@ -480,10 +521,21 @@ export function DatasetsPage() {
                 </span>
                 <Button
                   variant="secondary"
+                  aria-label="Previous page"
+                  disabled={offset === 0}
+                  onClick={() => setOffset(Math.max(0, offset - PREVIEW_PAGE))}
+                  className="px-1.5"
+                >
+                  ←
+                </Button>
+                <Button
+                  variant="secondary"
+                  aria-label="Next page"
                   disabled={offset + PREVIEW_PAGE >= preview.data.total}
                   onClick={() => setOffset(offset + PREVIEW_PAGE)}
+                  className="px-1.5"
                 >
-                  Next
+                  →
                 </Button>
               </div>
             )
@@ -527,40 +579,10 @@ export function DatasetsPage() {
               description="This dataset has no rows. Load the demo data, import a CSV, or record a check-in."
             />
           )}
-        </Panel>
+        </Block>
 
-        {/* Destructive zone */}
-        <Panel
-          title="Clear a dataset"
-          description="Deliberate and irreversible. Each source is cleared on its own; the other two are untouched."
-        >
-          {resetTarget ? (
-            <ConfirmInline
-              question={`Permanently delete every record in “${
-                dataset?.available_sources.find((entry) => entry.source === resetTarget)?.source_label
-              }”?`}
-              confirmLabel="Delete them"
-              pending={resetting}
-              onConfirm={() => void handleReset()}
-              onCancel={() => setResetTarget(null)}
-            />
-          ) : (
-            <div className="flex flex-wrap gap-2">
-              {(dataset?.available_sources ?? []).map((entry) => (
-                <Button
-                  key={entry.source}
-                  variant="danger"
-                  icon={<Trash2 className="size-3" />}
-                  disabled={entry.record_count === 0}
-                  onClick={() => setResetTarget(entry.source)}
-                >
-                  Clear {entry.source_label.toLowerCase()}
-                </Button>
-              ))}
-            </div>
-          )}
-        </Panel>
-      </div>
+        </Canvas>
+      </Split>
     </div>
   )
 }

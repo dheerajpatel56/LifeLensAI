@@ -69,6 +69,7 @@ export function MethodNote({ children, label = 'Method' }: { children: ReactNode
 
 /** A block of content in the canvas. No border, no title bar — the head does that. */
 export function Block({
+  id,
   label,
   meta,
   actions,
@@ -77,6 +78,8 @@ export function Block({
   className,
   span,
 }: {
+  /** Anchor target, for pages that carry a contents rail. */
+  id?: string
   label?: string
   meta?: ReactNode
   actions?: ReactNode
@@ -86,7 +89,7 @@ export function Block({
   span?: string
 }) {
   return (
-    <section className={clsx('flex min-w-0 flex-col', span, className)}>
+    <section id={id} className={clsx('flex min-w-0 scroll-mt-4 flex-col', span, className)}>
       {label && <SectionHead label={label} meta={meta} actions={actions} />}
       <div className={clsx(label && 'pt-3')}>{children}</div>
       {note && <MethodNote>{note}</MethodNote>}

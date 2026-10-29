@@ -9,7 +9,6 @@ import { useAsync } from '../hooks/useApi'
 import { useDataset } from '../hooks/useDataset'
 import { PageHeader } from '../components/layout/PageHeader'
 import {
-  Badge,
   Button,
   Callout,
   ConfirmInline,
@@ -17,10 +16,10 @@ import {
   ErrorState,
   Field,
   Input,
-  Panel,
   Skeleton,
   Textarea,
 } from '../components/ui'
+import { Block, Grid } from '../components/layout/Workspace'
 import { formatDate, formatNumber, todayIso } from '../utils/format'
 import type { CheckIn, CheckInPayload } from '../types/api'
 
@@ -153,7 +152,8 @@ export function CheckInPage() {
         productivity_score: record.productivity_score,
         notes: record.notes ?? '',
       })
-      window.scrollTo({ top: 0, behavior: 'smooth' })
+      // The canvas is the scroll container in the workspace shell, not the window.
+      document.querySelector('.canvas')?.scrollTo({ top: 0, behavior: 'smooth' })
     },
     [reset],
   )
@@ -253,12 +253,13 @@ export function CheckInPage() {
         }
       />
 
-      <div className="grid gap-5 xl:grid-cols-[1.15fr_1fr]">
-        <Panel
-          title={editing ? 'Update this day' : 'Today’s entry'}
-          description="All eleven fields are required. Ranges are enforced here and again on the server."
+      <Grid className="xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+        <Block
+          label={editing ? 'Update this day' : 'Today’s entry'}
+          meta={editing ? `id ${editing.id}` : todayIso()}
+          note="All eleven numeric fields are required: a half-filled day is almost always a mistake rather than a deliberate blank. Ranges and the cross-field rules (social media within screen time, sleep plus study/work within 24 hours) are enforced here for immediate feedback and again on the server, which never trusts the browser."
         >
-          <form onSubmit={onSubmit} noValidate className="flex flex-col gap-5">
+          <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4">
             {conflict && !editing && (
               <Callout tone="warning" title={`${formatDate(conflict.date)} is already recorded`}>
                 <p>
@@ -288,7 +289,7 @@ export function CheckInPage() {
             </Field>
 
             <fieldset className="m-0 border-0 p-0">
-              <legend className="label mb-2">Sleep</legend>
+              <legend className="label mb-2 block w-full border-b border-line pb-1">Sleep</legend>
               <div className="grid gap-3 sm:grid-cols-2">
                 {numberField('sleep_hours', 'Sleep duration (hours)', {
                   step: '0.1',
@@ -305,7 +306,7 @@ export function CheckInPage() {
             </fieldset>
 
             <fieldset className="m-0 border-0 p-0">
-              <legend className="label mb-2">Time use</legend>
+              <legend className="label mb-2 block w-full border-b border-line pb-1">Time use</legend>
               <div className="grid gap-3 sm:grid-cols-2">
                 {numberField('screen_time_hours', 'Screen time (hours)', { max: 24, hint: 'Total across devices' })}
                 {numberField('social_media_hours', 'Social media (hours)', {
@@ -327,10 +328,9 @@ export function CheckInPage() {
             </fieldset>
 
             <fieldset className="m-0 border-0 p-0">
-              <legend className="label mb-1">Self-reported ratings</legend>
-              <p className="mb-2.5 text-2xs text-faint">
-                Your own judgement of the day, on a 1–10 scale.
-              </p>
+              <legend className="label mb-2 block w-full border-b border-line pb-1">
+                Self-reported ratings · your own judgement, 1–10
+              </legend>
               <div className="grid gap-3 sm:grid-cols-3">
                 {(
                   [
@@ -405,16 +405,11 @@ export function CheckInPage() {
               )}
             </div>
           </form>
-        </Panel>
+        </Block>
 
-        <Panel
-          title="Your recent check-ins"
-          description="The 20 most recent records you have entered yourself."
-          actions={
-            records.data && (
-              <Badge tone="neutral">{records.data.total.toLocaleString()} total</Badge>
-            )
-          }
+        <Block
+          label="Recent check-ins"
+          meta={records.data ? `${records.data.total.toLocaleString()} total` : undefined}
         >
           {pendingDelete && (
             <div className="mb-3">
@@ -478,8 +473,8 @@ export function CheckInPage() {
               description="Fill in the form to record your first day. Until then, the analyses run on the synthetic demo dataset so you can still see how everything works."
             />
           )}
-        </Panel>
-      </div>
+        </Block>
+      </Grid>
     </div>
   )
 }

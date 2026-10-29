@@ -1,5 +1,27 @@
+import { useEffect, useState } from 'react'
+import clsx from 'clsx'
 import { PageHeader } from '../components/layout/PageHeader'
-import { Callout, Panel } from '../components/ui'
+import { Callout } from '../components/ui'
+import { Block, Canvas, Rail, Split } from '../components/layout/Workspace'
+
+/**
+ * This page is genuinely a document, so it keeps its prose. What it does not keep
+ * is the shape of one long scroll with no way to navigate it: the contents rail
+ * tracks the reader's position and jumps to any section.
+ */
+const SECTIONS = [
+  { id: 'problem', label: 'Problem statement' },
+  { id: 'motivation', label: 'Motivation' },
+  { id: 'objectives', label: 'Objectives' },
+  { id: 'pipeline', label: 'Pipeline' },
+  { id: 'architecture', label: 'Architecture' },
+  { id: 'techniques', label: 'Techniques' },
+  { id: 'dataset', label: 'Dataset & preprocessing' },
+  { id: 'evaluation', label: 'Evaluation' },
+  { id: 'questions', label: 'Questions' },
+  { id: 'limitations', label: 'Limitations' },
+  { id: 'future', label: 'Future work' },
+]
 
 const PIPELINE = [
   { stage: 'Data collection', detail: 'Daily check-in form, CSV import, or the synthetic demo dataset.' },
@@ -77,6 +99,56 @@ const FAQ = [
 ]
 
 export function AboutPage() {
+  const [active, setActive] = useState(SECTIONS[0].id)
+
+  // Scroll-spy against the canvas, which is the scroll container in this shell.
+  useEffect(() => {
+    const root = document.querySelector('.canvas')
+    if (!root) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0]
+        if (visible?.target.id) setActive(visible.target.id)
+      },
+      { root, rootMargin: '0px 0px -70% 0px', threshold: 0 },
+    )
+    SECTIONS.forEach(({ id }) => {
+      const node = document.getElementById(id)
+      if (node) observer.observe(node)
+    })
+    return () => observer.disconnect()
+  }, [])
+
+  const rail = (
+    <Rail>
+      <nav aria-label="Contents" className="flex flex-col">
+        <h2 className="label border-b border-line pb-1">Contents</h2>
+        {SECTIONS.map(({ id, label }) => (
+          <a
+            key={id}
+            href={`#${id}`}
+            onClick={(event) => {
+              event.preventDefault()
+              document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+              setActive(id)
+            }}
+            className={clsx(
+              'relative py-1 pl-2.5 text-xs no-underline transition-colors duration-150',
+              active === id ? 'text-ink' : 'text-muted hover:text-body',
+            )}
+          >
+            {active === id && (
+              <span aria-hidden className="absolute inset-y-0 left-0 w-0.5 bg-accent" />
+            )}
+            {label}
+          </a>
+        ))}
+      </nav>
+    </Rail>
+  )
+
   return (
     <div>
       <PageHeader
@@ -84,7 +156,8 @@ export function AboutPage() {
         note="What this project claims, how it computes it, and where it stops. Written to be defended out loud."
       />
 
-      <div className="flex flex-col gap-5">
+      <Split rail={rail}>
+        <Canvas>
         <Callout tone="warning" title="Scope limits, stated up front">
           LifeLens AI is a student data-mining project. It is not a medical device, not a diagnostic
           tool, and not clinically validated. Mood and productivity are self-reported ratings, never
@@ -92,7 +165,7 @@ export function AboutPage() {
           association inside one dataset.
         </Callout>
 
-        <Panel title="Problem statement">
+        <Block id="problem" label="Problem statement">
           <div className="measure flex flex-col gap-3 text-sm text-body">
             <p>
               People generate a dense trail of daily lifestyle data — how long they slept, how long
@@ -107,10 +180,10 @@ export function AboutPage() {
               person already has.
             </p>
           </div>
-        </Panel>
+        </Block>
 
         <div className="grid gap-5 lg:grid-cols-2">
-          <Panel title="Motivation">
+          <Block id="motivation" label="Motivation">
             <ul className="measure flex flex-col gap-2 text-sm text-body">
               {[
                 'Demonstrate a complete data-mining pipeline end to end, not a single algorithm in isolation.',
@@ -124,9 +197,9 @@ export function AboutPage() {
                 </li>
               ))}
             </ul>
-          </Panel>
+          </Block>
 
-          <Panel title="Objectives">
+          <Block id="objectives" label="Objectives">
             <ol className="measure flex list-decimal flex-col gap-2 pl-5 text-sm text-body">
               {[
                 'Capture daily lifestyle data with validation strict enough that bad records never reach the models.',
@@ -139,13 +212,11 @@ export function AboutPage() {
                 <li key={item}>{item}</li>
               ))}
             </ol>
-          </Panel>
+          </Block>
         </div>
 
-        <Panel
-          title="The pipeline"
-          description="Each stage is a real module in the codebase, not a diagram drawn after the fact."
-        >
+        <Block id="pipeline" label="The pipeline"
+          note="Each stage is a real module in the codebase, not a diagram drawn after the fact.">
           <ol className="flex flex-col gap-0">
             {PIPELINE.map((step, index) => (
               <li key={step.stage} className="flex gap-3.5">
@@ -168,12 +239,10 @@ export function AboutPage() {
               </li>
             ))}
           </ol>
-        </Panel>
+        </Block>
 
-        <Panel
-          title="System architecture"
-          description="Two processes on one machine. The browser never touches the database."
-        >
+        <Block id="architecture" label="System architecture"
+          note="Two processes on one machine. The browser never touches the database.">
           <div className="flex flex-col gap-4">
             <div className="grid gap-px border-y border-line bg-line lg:grid-cols-4">
               {[
@@ -223,12 +292,10 @@ export function AboutPage() {
               </pre>
             </div>
           </div>
-        </Panel>
+        </Block>
 
-        <Panel
-          title="Why these techniques, and why not classification"
-          description="The honest answer to the most likely question about this project."
-        >
+        <Block id="techniques" label="Why these techniques"
+          note="The honest answer to the most likely question about this project.">
           <div className="border-t border-line">
             {TECHNIQUES.map((technique) => (
               <div
@@ -252,12 +319,10 @@ export function AboutPage() {
               </div>
             ))}
           </div>
-        </Panel>
+        </Block>
 
-        <Panel
-          title="Dataset and preprocessing"
-          description="What goes into the models, and what is excluded on principle."
-        >
+        <Block id="dataset" label="Dataset & preprocessing"
+          note="What goes into the models, and what is excluded on principle.">
           <div className="measure flex flex-col gap-3 text-sm text-body">
             <p>
               The built-in dataset holds 1,200 synthetic daily records generated from five routine
@@ -282,9 +347,10 @@ export function AboutPage() {
               carries no information for either technique.
             </p>
           </div>
-        </Panel>
+        </Block>
 
-        <Panel title="Evaluation" description="How each technique is judged, and the limits of each measure.">
+        <Block id="evaluation" label="Evaluation"
+          note="How each technique is judged, and the limits of each measure.">
           <dl className="flex flex-col gap-3 text-sm">
             {[
               [
@@ -310,9 +376,9 @@ export function AboutPage() {
               </div>
             ))}
           </dl>
-        </Panel>
+        </Block>
 
-        <Panel title="Questions this project should be able to answer">
+        <Block id="questions" label="Questions this project should answer">
           <div className="border-t border-line">
             {FAQ.map((entry) => (
               <details
@@ -326,10 +392,10 @@ export function AboutPage() {
               </details>
             ))}
           </div>
-        </Panel>
+        </Block>
 
         <div className="grid gap-5 lg:grid-cols-2">
-          <Panel title="Known limitations">
+          <Block id="limitations" label="Known limitations">
             <ul className="measure flex flex-col gap-2 text-sm text-body">
               {[
                 'Self-reported mood and productivity carry recall bias, mood-congruent reporting and inconsistent personal scales.',
@@ -346,9 +412,9 @@ export function AboutPage() {
                 </li>
               ))}
             </ul>
-          </Panel>
+          </Block>
 
-          <Panel title="Future enhancements">
+          <Block id="future" label="Future enhancements">
             <ul className="measure flex flex-col gap-2 text-sm text-body">
               {[
                 'Lagged correlation, to test whether last night’s sleep tracks today’s productivity rather than the same day’s.',
@@ -364,9 +430,10 @@ export function AboutPage() {
                 </li>
               ))}
             </ul>
-          </Panel>
+          </Block>
         </div>
-      </div>
+        </Canvas>
+      </Split>
     </div>
   )
 }
