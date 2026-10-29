@@ -93,7 +93,7 @@ inspectable pattern discovery over data a person already has.
 | **Datasets** (`/datasets`) | Switch between the three sources, see column coverage and missingness, preview, import CSV with a validation report, export CSV, reload demo data, clear a source. |
 | **About & method** (`/about`) | Problem, architecture, why clustering rather than classification, evaluation, viva-ready explanations, limitations. |
 
-Cross-cutting: dark-first responsive UI, loading skeletons, empty/error states,
+Cross-cutting: light, print-like responsive UI, loading skeletons, empty/error states,
 inline confirmation for destructive actions, keyboard-accessible controls, and a
 dataset bar that always shows which data is being analysed.
 

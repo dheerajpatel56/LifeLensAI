@@ -166,7 +166,7 @@ export function AboutPage() {
         </Callout>
 
         <Block id="problem" label="Problem statement">
-          <div className="measure flex flex-col gap-3 text-sm text-body">
+          <div className="prose-serif measure flex flex-col gap-3">
             <p>
               People generate a dense trail of daily lifestyle data — how long they slept, how long
               they stared at a screen, whether they moved, how much caffeine they drank — and almost
@@ -323,7 +323,7 @@ export function AboutPage() {
 
         <Block id="dataset" label="Dataset & preprocessing"
           note="What goes into the models, and what is excluded on principle.">
-          <div className="measure flex flex-col gap-3 text-sm text-body">
+          <div className="prose-serif measure flex flex-col gap-3">
             <p>
               The built-in dataset holds 1,200 synthetic daily records generated from five routine
               profiles with a fixed seed. It is labelled synthetic everywhere it appears, and it is
@@ -388,7 +388,7 @@ export function AboutPage() {
                 <summary className="cursor-pointer text-sm font-medium text-ink marker:text-faint">
                   {entry.question}
                 </summary>
-                <p className="measure mt-2 text-sm text-body">{entry.answer}</p>
+                <p className="prose-serif measure mt-2">{entry.answer}</p>
               </details>
             ))}
           </div>

@@ -25,14 +25,14 @@ export default function App() {
       </Routes>
 
       <Toaster
-        theme="dark"
+        theme="light"
         position="bottom-right"
         toastOptions={{
           style: {
-            background: 'var(--color-surface)',
+            background: 'var(--color-base)',
             border: '1px solid var(--color-line-strong)',
             color: 'var(--color-ink)',
-            borderRadius: '4px',
+            borderRadius: '3px',
             fontSize: '0.8125rem',
           },
         }}

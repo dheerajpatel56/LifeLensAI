@@ -81,7 +81,7 @@ export function DatasetBar() {
               )}
             >
               {SHORT_LABEL[entry.source]}
-              <span className="tnum ml-1 text-faint">{entry.record_count.toLocaleString()}</span>
+              <span className="tnum ml-1 text-muted">{entry.record_count.toLocaleString()}</span>
             </button>
           )
         })}
@@ -97,7 +97,7 @@ export function DatasetBar() {
           onChange={(event) => setFilter({ ...filter, start: event.target.value || null })}
           className="!w-[7.75rem] px-1.5 py-[2px] text-2xs"
         />
-        <span aria-hidden className="text-2xs text-faint">
+        <span aria-hidden className="text-2xs text-muted">
           –
         </span>
         <Input

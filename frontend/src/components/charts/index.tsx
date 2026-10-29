@@ -35,11 +35,11 @@ import { formatShortDate } from '../../utils/format'
 // distinguishable in both hue and lightness so series stay separable.
 export const SERIES_COLORS = [
   'var(--color-accent)',
-  'var(--color-warning)',
+  'var(--color-negative)',
   'var(--color-positive)',
+  'var(--color-warning)',
   'var(--color-violet)',
   'var(--color-cyan)',
-  'var(--color-negative)',
   'var(--color-line-strong)',
   'var(--color-faint)',
 ]
@@ -51,12 +51,12 @@ const AXIS = {
 
 const TOOLTIP_STYLE = {
   contentStyle: {
-    background: 'var(--color-surface)',
+    background: 'var(--color-base)',
     border: '1px solid var(--color-line-strong)',
-    borderRadius: 4,
+    borderRadius: 3,
     fontSize: 12,
     color: 'var(--color-ink)',
-    boxShadow: '0 2px 6px -2px rgb(0 0 0 / 0.5)',
+    boxShadow: '0 2px 6px -3px rgb(0 0 0 / 0.25)',
   },
   labelStyle: { color: 'var(--color-muted)', fontSize: 11, marginBottom: 4 },
   itemStyle: { color: 'var(--color-body)' },
@@ -92,9 +92,9 @@ export function ChartFrame({
 // --------------------------------------------------------------------------- //
 const TREND_SERIES: Array<{ key: keyof TrendPoint; label: string; color: string }> = [
   { key: 'mood_score', label: 'Mood', color: 'var(--color-accent)' },
-  { key: 'productivity_score', label: 'Productivity', color: 'var(--color-warning)' },
+  { key: 'productivity_score', label: 'Productivity', color: 'var(--color-negative)' },
   { key: 'sleep_hours', label: 'Sleep (h)', color: 'var(--color-positive)' },
-  { key: 'stress_score', label: 'Stress', color: 'var(--color-negative)' },
+  { key: 'stress_score', label: 'Stress', color: 'var(--color-warning)' },
 ]
 
 export function TrendLineChart({
@@ -210,7 +210,7 @@ export function RelationScatter({
           formatter={(value, name) => [value, String(name)]}
           labelFormatter={() => ''}
         />
-        <Scatter data={series.points} fill={color} fillOpacity={0.5} />
+        <Scatter data={series.points} fill={color} fillOpacity={0.45} />
       </ScatterChart>
     </ResponsiveContainer>
   )

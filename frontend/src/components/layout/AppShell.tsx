@@ -141,7 +141,7 @@ export function AppShell() {
       </div>
 
       {/* Status bar: the state of the session, always visible, never narrated. */}
-      <footer className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-line bg-base-deep px-3 py-1 text-2xs text-faint">
+      <footer className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-line bg-base-deep px-3 py-1 text-2xs text-muted">
         <span className="flex items-center gap-1.5">
           <span aria-hidden className="size-1.5 rounded-full bg-positive" />
           Local
@@ -163,7 +163,7 @@ export function AppShell() {
             type="button"
             aria-label="Close navigation"
             onClick={() => setMobileOpen(false)}
-            className="fixed inset-0 bg-base-deep/80"
+            className="fixed inset-0 bg-ink/35"
             style={{ zIndex: 'var(--z-overlay)' }}
           />
           <div

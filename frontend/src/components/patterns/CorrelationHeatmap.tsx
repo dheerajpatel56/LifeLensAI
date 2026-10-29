@@ -17,11 +17,12 @@ function cellStyle(coefficient: number | null): { background: string; color: str
   }
   const magnitude = Math.min(Math.abs(coefficient), 1)
   // Alpha ramps with |r| so weak cells recede and strong cells read instantly.
-  const alpha = 0.1 + magnitude * 0.62
+  // Capped below full strength so the figure stays legible in every cell.
+  const alpha = 0.06 + magnitude * 0.5
   const hue = coefficient >= 0 ? 'var(--color-positive)' : 'var(--color-negative)'
   return {
-    background: `color-mix(in srgb, ${hue} ${Math.round(alpha * 100)}%, var(--color-surface))`,
-    color: magnitude > 0.45 ? 'var(--color-base-deep)' : 'var(--color-ink)',
+    background: `color-mix(in srgb, ${hue} ${Math.round(alpha * 100)}%, var(--color-base))`,
+    color: magnitude > 0.62 ? 'var(--color-base)' : 'var(--color-ink)',
   }
 }
 
@@ -85,7 +86,7 @@ export function CorrelationHeatmap({ data }: { data: CorrelationResponse }) {
                 const key = `${rowField}|${colField}`
                 const isSelf = rowField === colField
                 const style = isSelf
-                  ? { background: 'var(--color-line)', color: 'var(--color-muted)' }
+                  ? { background: 'var(--color-raised)', color: 'var(--color-muted)' }
                   : cellStyle(coefficient)
                 return (
                   <div
@@ -120,7 +121,7 @@ export function CorrelationHeatmap({ data }: { data: CorrelationResponse }) {
             className="h-2.5 w-10"
             style={{
               background:
-                'linear-gradient(90deg, color-mix(in srgb, var(--color-negative) 72%, var(--color-surface)), var(--color-surface), color-mix(in srgb, var(--color-positive) 72%, var(--color-surface)))',
+                'linear-gradient(90deg, color-mix(in srgb, var(--color-negative) 56%, var(--color-base)), var(--color-base), color-mix(in srgb, var(--color-positive) 56%, var(--color-base)))',
             }}
             aria-hidden
           />

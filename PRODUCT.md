@@ -28,14 +28,16 @@ The whole product is one pipeline, and the UI exists to make each stage legible:
 
 A student running their own data, in two situations:
 
-1. **Nightly, alone, on a laptop, lights low** — filling in one check-in, glancing
-   at whether the week is trending.
+1. **At a desk in the evening, alone, on a laptop** — filling in one check-in,
+   glancing at whether the week is trending.
 2. **Live, in front of a class and an examiner, on a projector in a dim room** —
    walking through the pipeline and defending the methodology out loud.
 
-Both scenes are low-light and chart-heavy, and the second one punishes thin
-hairlines and pale greys on a washed-out projector. That forces the theme: **dark,
-with charts and numbers as the brightest things on screen.**
+Both scenes are chart-heavy, and the second one punishes low contrast on a
+washed-out projector. That sets the register: **a light, print-like interface —
+paper ground, near-black ink, figures as the darkest marks on the page** — which
+survives a bright room and a bad projector, and reads as a report rather than an
+app when it is being marked.
 
 ## Jobs to be done
 

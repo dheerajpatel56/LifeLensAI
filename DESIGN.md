@@ -33,16 +33,19 @@ Concretely:
 
 ## Theme
 
-Dark, fixed. Justified by the two real usage scenes in PRODUCT.md: a laptop at
-night, and a projector in a dim room.
+Light, fixed. Paper ground, near-black ink, figures as the darkest marks on the
+page — the way a printed statistical table reads. It survives a bright room and a
+washed-out projector, and it reads as a report rather than as an app.
 
-Neutrals are near-chromatic-zero **graphite** (chroma 0.003–0.005). An earlier
-build tinted them navy-violet, which read as decoration; a reporting tool should
-look like paper under a desk lamp. Colour strategy is **restrained**: one accent
-for action and selection, plus a functional data ramp.
+Neutrals are near-chromatic-zero and faintly cool. The warm cream/sand band is
+deliberately avoided: it is the saturated default and reads as a template rather
+than as paper. Colour strategy is **restrained** — one institutional ink-blue
+accent for action and selection, plus a functional data ramp darkened for a light
+ground.
 
-No translucency anywhere. Every surface is opaque. (The first build used
-`backdrop-blur` on the header — glass as default is banned, and that was the tell.)
+No translucency anywhere. Every surface is opaque. (An earlier build used
+`backdrop-blur` on the header — glass as a default surface is banned, and that
+was the tell.)
 
 ## Tokens
 
@@ -51,32 +54,39 @@ Defined as CSS custom properties in `src/index.css`, consumed through Tailwind v
 
 | Role | Token | Value |
 |---|---|---|
-| Page | `--color-base` | `oklch(0.179 0.003 265)` |
-| Chrome | `--color-base-deep` | `oklch(0.149 0.003 265)` |
-| Surface | `--color-surface` | `oklch(0.207 0.003 265)` |
-| Raised | `--color-raised` | `oklch(0.247 0.004 265)` |
-| Line | `--color-line` | `oklch(0.288 0.004 265)` |
-| Line (strong) | `--color-line-strong` | `oklch(0.372 0.005 265)` |
-| Ink | `--color-ink` | `oklch(0.967 0.002 265)` |
-| Body | `--color-body` | `oklch(0.838 0.003 265)` |
-| Muted | `--color-muted` | `oklch(0.668 0.004 265)` |
-| Faint | `--color-faint` | `oklch(0.545 0.005 265)` |
-| Accent (steel blue) | `--color-accent` | `oklch(0.604 0.128 248)` |
+| Paper | `--color-base` | `oklch(0.991 0.001 265)` |
+| Chrome band | `--color-base-deep` | `oklch(0.958 0.002 265)` |
+| Surface | `--color-surface` | `oklch(0.972 0.002 265)` |
+| Raised | `--color-raised` | `oklch(0.941 0.003 265)` |
+| Line | `--color-line` | `oklch(0.881 0.004 265)` |
+| Line (strong) | `--color-line-strong` | `oklch(0.772 0.006 265)` |
+| Ink | `--color-ink` | `oklch(0.212 0.013 265)` |
+| Body | `--color-body` | `oklch(0.356 0.011 265)` |
+| Muted | `--color-muted` | `oklch(0.492 0.011 265)` |
+| Faint | `--color-faint` | `oklch(0.545 0.012 265)` |
+| Accent (ink blue) | `--color-accent` | `oklch(0.448 0.132 257)` |
 
 Data ramp, used for categorical series and semantic state only:
 `--color-cyan`, `--color-positive`, `--color-warning`, `--color-negative`,
 `--color-violet`.
 
-Contrast: body on surface ≈ 7:1, muted on surface ≈ 4.6:1, ink on surface ≈ 14:1.
-Placeholders use `--color-muted`, never a lighter grey.
+Contrast, measured from rendered pixels rather than estimated: ink 17.2:1, body
+10.8:1, muted 6.1:1, faint 4.8:1, accent 7.4:1, white-on-accent 7.6:1 — all above
+AA. The faint step is kept **off** the tinted chrome band, where it would drop to
+3.7:1; chrome text uses muted. Placeholders use muted, never a lighter grey.
 
 ## Type
 
-**Two faces, on purpose.** Chrome and data should not look alike:
+**Three faces, each with a job.** Chrome, prose and data should not look alike:
 
-- **Inter** for interface text — labels, prose, controls, navigation.
-- **JetBrains Mono** for every figure. Applied via `.tnum`, `table`, `output` and
-  `code`, with tabular figures so numbers do not shift as values change.
+- **Source Serif 4** for headings and document prose. The shift in face is what
+  makes a heading a heading, without size or weight having to shout — and it is
+  what makes the About page read as an article rather than as app furniture.
+- **Inter** for interface chrome — labels, controls, navigation, table text.
+- **JetBrains Mono** for every figure, via `.tnum`, `table`, `output` and `code`,
+  with tabular figures so numbers do not shift as values change.
+
+Serif is never used for UI labels, buttons or data — only for headings and prose.
 
 Fixed rem scale (not fluid — this is a tool, not a landing page), ratio ≈ 1.15:
 
