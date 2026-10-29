@@ -203,7 +203,8 @@ LifeLensAI/
 │     ├─ types/api.ts             TypeScript mirrors of the Pydantic schemas
 │     ├─ utils/format.ts
 │     └─ index.css                design tokens
-├─ docs/            problem statement, architecture, data dictionary, methodology, testing, viva prep
+├─ docs/            problem statement, architecture, data dictionary, methodology,
+│                   testing, novelty & research gap, viva prep
 ├─ PRODUCT.md       product context
 ├─ DESIGN.md        design system
 └─ README.md
