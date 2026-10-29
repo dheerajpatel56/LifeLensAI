@@ -32,7 +32,7 @@ export default function App() {
             background: 'var(--color-surface)',
             border: '1px solid var(--color-line-strong)',
             color: 'var(--color-ink)',
-            borderRadius: '10px',
+            borderRadius: '4px',
             fontSize: '0.8125rem',
           },
         }}

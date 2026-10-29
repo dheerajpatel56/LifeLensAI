@@ -81,7 +81,7 @@ export function AboutPage() {
     <div>
       <PageHeader
         title="About & methodology"
-        lede="What this project claims, how it computes it, and where it stops. Written to be defended out loud."
+        note="What this project claims, how it computes it, and where it stops. Written to be defended out loud."
       />
 
       <div className="flex flex-col gap-5">
@@ -119,7 +119,7 @@ export function AboutPage() {
                 'Keep every byte on the user’s own machine: no accounts, no API keys, no uploads.',
               ].map((item) => (
                 <li key={item} className="flex gap-2">
-                  <span aria-hidden className="mt-2 size-1 shrink-0 rounded-full bg-accent" />
+                  <span aria-hidden className="mt-[7px] size-1 shrink-0 bg-accent" />
                   {item}
                 </li>
               ))}
@@ -153,7 +153,7 @@ export function AboutPage() {
                 <div className="flex flex-col items-center">
                   <span
                     aria-hidden
-                    className="mt-1.5 grid size-6 shrink-0 place-items-center rounded-full border border-accent/40 bg-accent/12 text-2xs font-semibold text-accent-ink"
+                    className="mt-1 grid size-5 shrink-0 place-items-center rounded-[2px] border border-line-strong bg-raised text-2xs font-semibold text-accent-ink"
                   >
                     {index + 1}
                   </span>
@@ -161,7 +161,7 @@ export function AboutPage() {
                     <span aria-hidden className="w-px flex-1 bg-line" />
                   )}
                 </div>
-                <div className="pb-5">
+                <div className="pb-4">
                   <p className="text-sm font-medium text-ink">{step.stage}</p>
                   <p className="measure text-sm text-muted">{step.detail}</p>
                 </div>
@@ -175,7 +175,7 @@ export function AboutPage() {
           description="Two processes on one machine. The browser never touches the database."
         >
           <div className="flex flex-col gap-4">
-            <div className="grid gap-3 lg:grid-cols-4">
+            <div className="grid gap-px border-y border-line bg-line lg:grid-cols-4">
               {[
                 {
                   layer: 'Frontend',
@@ -198,15 +198,15 @@ export function AboutPage() {
                   role: 'One table, three logically separated sources, date uniqueness per source.',
                 },
               ].map((entry) => (
-                <div key={entry.layer} className="rounded-[10px] border border-line bg-surface px-4 py-3">
-                  <p className="text-sm font-semibold text-ink">{entry.layer}</p>
-                  <p className="mt-0.5 text-2xs text-accent-ink">{entry.stack}</p>
+                <div key={entry.layer} className="bg-base px-4 py-3 first:pl-0">
+                  <p className="label">{entry.layer}</p>
+                  <p className="mt-1 text-xs text-accent-ink">{entry.stack}</p>
                   <p className="mt-1.5 text-xs text-muted">{entry.role}</p>
                 </div>
               ))}
             </div>
 
-            <div className="overflow-x-auto rounded-[10px] border border-line bg-base-deep px-4 py-4">
+            <div className="overflow-x-auto rounded-[4px] border border-line bg-base-deep px-4 py-3.5">
               <pre className="m-0 text-2xs leading-relaxed text-muted">
 {`  Browser (localhost:5173)
         │  fetch /api/*  (JSON over HTTP)
@@ -229,18 +229,18 @@ export function AboutPage() {
           title="Why these techniques, and why not classification"
           description="The honest answer to the most likely question about this project."
         >
-          <div className="flex flex-col gap-3">
+          <div className="border-t border-line">
             {TECHNIQUES.map((technique) => (
               <div
                 key={technique.name}
-                className="rounded-[10px] border border-line bg-surface px-4 py-3.5"
+                className="border-b border-line py-3 last:border-0"
               >
                 <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="text-base font-semibold text-ink">{technique.name}</h3>
+                  <h3 className="text-sm font-semibold text-ink">{technique.name}</h3>
                   <span
-                    className={`rounded-full border px-2 py-0.5 text-2xs font-medium ${
+                    className={`rounded-[2px] border px-1.5 py-0.5 text-2xs font-medium ${
                       technique.used
-                        ? 'border-positive/35 bg-positive/12 text-positive'
+                        ? 'border-positive/40 bg-positive/10 text-positive'
                         : 'border-line bg-raised text-muted'
                     }`}
                   >
@@ -313,11 +313,11 @@ export function AboutPage() {
         </Panel>
 
         <Panel title="Questions this project should be able to answer">
-          <div className="flex flex-col gap-3">
+          <div className="border-t border-line">
             {FAQ.map((entry) => (
               <details
                 key={entry.question}
-                className="group rounded-[10px] border border-line bg-surface px-4 py-3"
+                className="group border-b border-line py-2.5 last:border-0"
               >
                 <summary className="cursor-pointer text-sm font-medium text-ink marker:text-faint">
                   {entry.question}
@@ -341,7 +341,7 @@ export function AboutPage() {
                 'Single-user, single-machine, no authentication — it is a local prototype, not a multi-tenant product.',
               ].map((item) => (
                 <li key={item} className="flex gap-2">
-                  <span aria-hidden className="mt-2 size-1 shrink-0 rounded-full bg-warning" />
+                  <span aria-hidden className="mt-[7px] size-1 shrink-0 bg-warning" />
                   {item}
                 </li>
               ))}
@@ -359,7 +359,7 @@ export function AboutPage() {
                 'Multiple-comparison correction on the correlation matrix.',
               ].map((item) => (
                 <li key={item} className="flex gap-2">
-                  <span aria-hidden className="mt-2 size-1 shrink-0 rounded-full bg-cyan" />
+                  <span aria-hidden className="mt-[7px] size-1 shrink-0 bg-cyan" />
                   {item}
                 </li>
               ))}

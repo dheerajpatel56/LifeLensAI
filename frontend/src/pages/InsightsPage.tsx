@@ -1,14 +1,17 @@
+import { useEffect, useRef } from 'react'
 import { FlaskConical, ShieldAlert } from 'lucide-react'
 import { api } from '../services/api'
 import { useAsync } from '../hooks/useApi'
 import { useDataset } from '../hooks/useDataset'
 import { PageHeader } from '../components/layout/PageHeader'
 import { Badge, Callout, EmptyState, ErrorState, Panel, Skeleton } from '../components/ui'
-import { InsightCard } from '../components/dashboard/InsightCard'
+import { InsightRow } from '../components/dashboard/InsightCard'
 import { formatDate } from '../utils/format'
+import { enterPanel } from '../utils/motion'
 
 export function InsightsPage() {
   const { dataset, filter, version } = useDataset()
+  const listRef = useRef<HTMLDivElement>(null)
 
   const { data, error, loading, reload } = useAsync(
     () =>
@@ -20,14 +23,19 @@ export function InsightsPage() {
     [dataset?.source, filter.start, filter.end, version],
   )
 
+  // Findings stagger in once they arrive — the list changing is the state change.
+  useEffect(() => {
+    if (data) enterPanel(listRef.current, 0, { stagger: true })
+  }, [data])
+
   return (
     <div>
       <PageHeader
         title="Insights"
-        lede="Plain-English readings of the mining results. Every sentence is assembled from numbers the backend computed — there is no language model and no external service inventing explanations here."
+        note="Plain-English readings of the mining results. Every sentence is assembled from numbers the backend computed by filling deterministic templates — no language model and no external service is involved, so no insight can describe a finding the data does not contain."
         actions={
           data && (
-            <Badge tone={data.is_synthetic ? 'warning' : 'accent'}>
+            <Badge tone={data.is_synthetic ? 'warning' : 'neutral'}>
               {data.is_synthetic && <FlaskConical className="size-3" aria-hidden />}
               {data.source_label}
             </Badge>
@@ -38,20 +46,15 @@ export function InsightsPage() {
       {error && <ErrorState message={error} onRetry={reload} />}
 
       {loading && !data && (
-        <div className="flex flex-col gap-5">
-          {Array.from({ length: 3 }).map((_, index) => (
-            <Panel key={index} title=" ">
-              <div className="grid gap-3 sm:grid-cols-2">
-                <Skeleton className="h-36" />
-                <Skeleton className="h-36" />
-              </div>
-            </Panel>
+        <div className="flex flex-col gap-3">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <Skeleton key={index} className="h-16" />
           ))}
         </div>
       )}
 
       {data && (
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-6">
           <Callout
             tone={data.is_synthetic ? 'warning' : 'neutral'}
             title={data.is_synthetic ? 'Observations from synthetic data' : 'Observations from your data'}
@@ -65,8 +68,8 @@ export function InsightsPage() {
             </Callout>
           )}
 
-          {data.groups.length === 0 ? (
-            <Panel title="Nothing to report yet">
+          <div ref={listRef} className="flex flex-col gap-6">
+            {data.groups.length === 0 ? (
               <EmptyState
                 title="No finding cleared the evidence bar"
                 description={
@@ -75,24 +78,21 @@ export function InsightsPage() {
                     : 'The analyses ran but nothing met the minimum sample size and strength needed to state a finding. That is a real result, not a failure.'
                 }
               />
-            </Panel>
-          ) : (
-            data.groups.map((group) => (
-              <Panel key={group.key} title={group.title} description={group.description}>
-                <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(19rem,1fr))]">
-                  {group.items.map((item) => (
-                    <InsightCard key={item.id} item={item} />
-                  ))}
-                </div>
-              </Panel>
-            ))
-          )}
+            ) : (
+              data.groups.map((group) => (
+                <Panel key={group.key} title={group.title} description={group.description}>
+                  <div className="border-t border-line">
+                    {group.items.map((item) => (
+                      <InsightRow key={item.id} item={item} />
+                    ))}
+                  </div>
+                </Panel>
+              ))
+            )}
+          </div>
 
-          <Panel
-            title="Limits of everything on this page"
-            description="Read before quoting any of it."
-          >
-            <ul className="measure flex flex-col gap-2 text-sm text-body">
+          <Panel title="Limits of everything on this page" description="Read before quoting any of it.">
+            <ul className="measure flex flex-col gap-1.5 text-sm text-muted">
               {data.disclaimers.map((text) => (
                 <li key={text} className="flex gap-2">
                   <ShieldAlert className="mt-0.5 size-3.5 shrink-0 text-warning" aria-hidden />

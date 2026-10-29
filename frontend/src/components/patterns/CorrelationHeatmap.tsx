@@ -46,7 +46,7 @@ export function CorrelationHeatmap({ data }: { data: CorrelationResponse }) {
     <div className="flex flex-col gap-3">
       <div className="overflow-x-auto">
         <div
-          className="grid min-w-[36rem] gap-px"
+          className="grid min-w-[36rem] gap-px bg-line/40"
           style={{ gridTemplateColumns: `minmax(8.5rem, auto) repeat(${vars.length}, minmax(2.75rem, 1fr))` }}
           role="table"
           aria-label={`${data.method} correlation matrix`}
@@ -100,7 +100,7 @@ export function CorrelationHeatmap({ data }: { data: CorrelationResponse }) {
                       coefficient === null ? 'not available' : coefficient.toFixed(2)
                     }, n = ${cell?.sample_size ?? 0}`}
                     className={clsx(
-                      'tnum grid h-10 place-items-center rounded-[4px] text-2xs font-medium transition-[outline] duration-150',
+                      'tnum grid h-9 place-items-center text-2xs font-medium transition-[outline] duration-150',
                       hovered === key && 'outline outline-2 outline-accent',
                     )}
                     style={style}
@@ -117,7 +117,7 @@ export function CorrelationHeatmap({ data }: { data: CorrelationResponse }) {
       <div className="flex flex-wrap items-center gap-4 text-2xs text-muted">
         <span className="flex items-center gap-1.5">
           <span
-            className="h-3 w-10 rounded-[3px]"
+            className="h-2.5 w-10"
             style={{
               background:
                 'linear-gradient(90deg, color-mix(in srgb, var(--color-negative) 72%, var(--color-surface)), var(--color-surface), color-mix(in srgb, var(--color-positive) 72%, var(--color-surface)))',

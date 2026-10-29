@@ -31,13 +31,15 @@ import type {
 import { EmptyState, SampleSize } from '../ui'
 import { formatShortDate } from '../../utils/format'
 
+// Categorical series order. Functional, not decorative: each step is
+// distinguishable in both hue and lightness so series stay separable.
 export const SERIES_COLORS = [
   'var(--color-accent)',
-  'var(--color-cyan)',
-  'var(--color-positive)',
   'var(--color-warning)',
+  'var(--color-positive)',
+  'var(--color-violet)',
+  'var(--color-cyan)',
   'var(--color-negative)',
-  'var(--color-accent-ink)',
   'var(--color-line-strong)',
   'var(--color-faint)',
 ]
@@ -51,10 +53,10 @@ const TOOLTIP_STYLE = {
   contentStyle: {
     background: 'var(--color-surface)',
     border: '1px solid var(--color-line-strong)',
-    borderRadius: 8,
+    borderRadius: 4,
     fontSize: 12,
     color: 'var(--color-ink)',
-    boxShadow: '0 4px 8px -2px rgb(0 0 0 / 0.4)',
+    boxShadow: '0 2px 6px -2px rgb(0 0 0 / 0.5)',
   },
   labelStyle: { color: 'var(--color-muted)', fontSize: 11, marginBottom: 4 },
   itemStyle: { color: 'var(--color-body)' },
@@ -90,9 +92,9 @@ export function ChartFrame({
 // --------------------------------------------------------------------------- //
 const TREND_SERIES: Array<{ key: keyof TrendPoint; label: string; color: string }> = [
   { key: 'mood_score', label: 'Mood', color: 'var(--color-accent)' },
-  { key: 'productivity_score', label: 'Productivity', color: 'var(--color-cyan)' },
+  { key: 'productivity_score', label: 'Productivity', color: 'var(--color-warning)' },
   { key: 'sleep_hours', label: 'Sleep (h)', color: 'var(--color-positive)' },
-  { key: 'stress_score', label: 'Stress', color: 'var(--color-warning)' },
+  { key: 'stress_score', label: 'Stress', color: 'var(--color-negative)' },
 ]
 
 export function TrendLineChart({
@@ -208,7 +210,7 @@ export function RelationScatter({
           formatter={(value, name) => [value, String(name)]}
           labelFormatter={() => ''}
         />
-        <Scatter data={series.points} fill={color} fillOpacity={0.55} />
+        <Scatter data={series.points} fill={color} fillOpacity={0.5} />
       </ScatterChart>
     </ResponsiveContainer>
   )
@@ -317,7 +319,7 @@ export function ClusterDistributionChart({
           {...TOOLTIP_STYLE}
           formatter={(value) => [`${value} day(s)`, 'Size']}
         />
-        <Bar dataKey="size" radius={[0, 4, 4, 0]} maxBarSize={22}>
+        <Bar dataKey="size" radius={[0, 2, 2, 0]} maxBarSize={22}>
           {items.map((item, index) => (
             <Cell key={item.cluster_id} fill={SERIES_COLORS[index % SERIES_COLORS.length]} />
           ))}
@@ -355,7 +357,7 @@ export function RuleLiftChart({
           {...TOOLTIP_STYLE}
           formatter={(value: unknown, name) => [Number(value).toFixed(2), String(name)]}
         />
-        <Bar dataKey="lift" name="Lift" fill="var(--color-accent)" radius={[0, 4, 4, 0]} maxBarSize={18} />
+        <Bar dataKey="lift" name="Lift" fill="var(--color-accent)" radius={[0, 2, 2, 0]} maxBarSize={18} />
       </BarChart>
     </ResponsiveContainer>
   )

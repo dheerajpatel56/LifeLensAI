@@ -243,7 +243,7 @@ export function CheckInPage() {
     <div>
       <PageHeader
         title={editing ? `Editing ${formatDate(editing.date)}` : 'Daily check-in'}
-        lede="Record one day of lifestyle data. Mood and productivity are your own ratings — LifeLens never infers them from your screen time, your notes or anything else."
+        note="Record one day of lifestyle data. Mood and productivity are your own ratings — LifeLens never infers them from your screen time, your notes or anything else. Ranges are enforced here and again on the server."
         actions={
           editing && (
             <Button variant="ghost" onClick={cancelEdit}>
@@ -288,7 +288,7 @@ export function CheckInPage() {
             </Field>
 
             <fieldset className="m-0 border-0 p-0">
-              <legend className="mb-2.5 text-xs font-semibold text-muted">Sleep</legend>
+              <legend className="label mb-2">Sleep</legend>
               <div className="grid gap-3 sm:grid-cols-2">
                 {numberField('sleep_hours', 'Sleep duration (hours)', {
                   step: '0.1',
@@ -305,7 +305,7 @@ export function CheckInPage() {
             </fieldset>
 
             <fieldset className="m-0 border-0 p-0">
-              <legend className="mb-2.5 text-xs font-semibold text-muted">Time use</legend>
+              <legend className="label mb-2">Time use</legend>
               <div className="grid gap-3 sm:grid-cols-2">
                 {numberField('screen_time_hours', 'Screen time (hours)', { max: 24, hint: 'Total across devices' })}
                 {numberField('social_media_hours', 'Social media (hours)', {
@@ -327,9 +327,7 @@ export function CheckInPage() {
             </fieldset>
 
             <fieldset className="m-0 border-0 p-0">
-              <legend className="mb-1 text-xs font-semibold text-muted">
-                Self-reported ratings
-              </legend>
+              <legend className="label mb-1">Self-reported ratings</legend>
               <p className="mb-2.5 text-2xs text-faint">
                 Your own judgement of the day, on a 1–10 scale.
               </p>
@@ -391,12 +389,12 @@ export function CheckInPage() {
               />
             </Field>
 
-            <div className="flex flex-wrap items-center gap-2 border-t border-line pt-4">
+            <div className="flex flex-wrap items-center gap-2 border-t border-line pt-3.5">
               <Button
                 type="submit"
                 variant="primary"
                 loading={isSubmitting}
-                icon={<Save className="size-4" />}
+                icon={<Save className="size-3.5" />}
               >
                 {editing ? 'Save changes' : 'Save check-in'}
               </Button>
@@ -439,14 +437,14 @@ export function CheckInPage() {
           ) : records.error ? (
             <ErrorState message={records.error} onRetry={records.reload} />
           ) : records.data && records.data.items.length > 0 ? (
-            <ul className="-mx-4 flex flex-col sm:-mx-5">
+            <ul className="flex flex-col border-t border-line">
               {records.data.items.map((record) => (
                 <li
                   key={record.id}
-                  className="flex flex-wrap items-center justify-between gap-3 border-b border-line/60 px-4 py-2.5 transition-colors last:border-0 hover:bg-raised sm:px-5"
+                  className="flex flex-wrap items-center justify-between gap-3 border-b border-line py-2 transition-colors last:border-0 hover:bg-surface"
                 >
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-ink">{formatDate(record.date)}</p>
+                    <p className="text-sm text-ink">{formatDate(record.date)}</p>
                     <p className="tnum text-2xs text-muted">
                       mood {record.mood_score} · productivity {record.productivity_score} · sleep{' '}
                       {formatNumber(record.sleep_hours)} h · stress {record.stress_score}

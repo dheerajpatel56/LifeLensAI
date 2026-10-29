@@ -9,8 +9,10 @@ import { PageHeader } from '../components/layout/PageHeader'
 import {
   Badge,
   Button,
+  buttonClasses,
   Callout,
   ConfirmInline,
+  DataTable,
   EmptyState,
   ErrorState,
   Panel,
@@ -135,20 +137,20 @@ export function DatasetsPage() {
     <div>
       <PageHeader
         title="Datasets"
-        lede="Three datasets are kept side by side and never merged: the built-in synthetic demo, the check-ins you type, and whatever CSV you import. Only one is analysed at a time."
+        note="Three datasets are kept side by side and never merged: the built-in synthetic demo, the check-ins you type, and whatever CSV you import. Only one is analysed at a time; switching changes what the analyses read and deletes nothing."
         actions={
           <>
             <a
               href={api.exportUrl(dataset?.source)}
               download
-              className="inline-flex items-center gap-2 rounded-[6px] border border-line bg-raised px-3 py-1.5 text-sm font-medium text-body no-underline transition-colors hover:border-line-strong hover:text-ink"
+              className={buttonClasses('secondary')}
             >
-              <Download className="size-4" aria-hidden />
+              <Download className="size-3.5" aria-hidden />
               Export CSV
             </a>
             <Button
               variant="secondary"
-              icon={<RefreshCw className="size-4" />}
+              icon={<RefreshCw className="size-3.5" />}
               loading={reloadingDemo}
               onClick={() => void handleReloadDemo()}
             >
@@ -174,12 +176,18 @@ export function DatasetsPage() {
                   onClick={() => void selectSource(entry.source)}
                   aria-pressed={isActive}
                   className={clsx(
-                    'flex flex-col items-start gap-1.5 rounded-[10px] border px-4 py-3 text-left transition-colors duration-150',
+                    'relative flex flex-col items-start gap-1 border px-3.5 py-2.5 text-left transition-colors duration-150',
                     isActive
-                      ? 'border-accent/45 bg-accent/12'
-                      : 'border-line bg-surface hover:border-line-strong',
+                      ? 'border-line-strong bg-surface'
+                      : 'border-line hover:border-line-strong hover:bg-surface/60',
                   )}
                 >
+                  {isActive && (
+                    <span aria-hidden className="absolute inset-x-0 top-0 h-0.5 bg-accent" />
+                  )}
+                  {isActive && (
+                    <span aria-hidden className="absolute inset-x-0 top-0 h-0.5 bg-accent" />
+                  )}
                   <span className="flex w-full items-center justify-between gap-2">
                     <span className={clsx('text-sm font-medium', isActive ? 'text-ink' : 'text-body')}>
                       {entry.source_label}
@@ -211,7 +219,7 @@ export function DatasetsPage() {
             <ErrorState message={summary.error} onRetry={summary.reload} />
           ) : summary.data ? (
             <div className="flex flex-col gap-4">
-              <dl className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(9rem,1fr))]">
+              <dl className="flex flex-wrap border-y border-line [&>*+*]:border-l [&>*+*]:border-line">
                 {[
                   ['Records', summary.data.record_count.toLocaleString()],
                   ['First day', formatDate(summary.data.date_start)],
@@ -219,9 +227,9 @@ export function DatasetsPage() {
                   ['Duplicate dates', String(summary.data.duplicate_date_count)],
                   ['Missing values', summary.data.total_missing_values.toLocaleString()],
                 ].map(([label, value]) => (
-                  <div key={label} className="rounded-[10px] border border-line bg-raised px-3 py-2">
-                    <dt className="text-2xs text-muted">{label}</dt>
-                    <dd className="tnum mt-0.5 text-md font-semibold text-ink">{value}</dd>
+                  <div key={label} className="px-4 py-2.5 first:pl-0">
+                    <dt className="label">{label}</dt>
+                    <dd className="tnum mt-0.5 text-lg font-semibold text-ink">{value}</dd>
                   </div>
                 ))}
               </dl>
@@ -232,52 +240,50 @@ export function DatasetsPage() {
                 </Callout>
               ))}
 
-              <div className="-mx-4 overflow-x-auto sm:-mx-5">
-                <table className="w-full min-w-[40rem] text-sm">
+              <DataTable minWidth="40rem">
                   <thead>
-                    <tr className="border-b border-line text-left text-2xs uppercase tracking-wide text-faint">
-                      <th scope="col" className="px-4 py-2 font-medium sm:px-5">Column</th>
-                      <th scope="col" className="px-3 py-2 font-medium">Status</th>
-                      <th scope="col" className="px-3 py-2 text-right font-medium">Missing</th>
-                      <th scope="col" className="px-3 py-2 text-right font-medium">Min</th>
-                      <th scope="col" className="px-3 py-2 text-right font-medium">Mean</th>
-                      <th scope="col" className="px-4 py-2 text-right font-medium sm:px-5">Max</th>
+                    <tr className="border-b border-line bg-surface text-left">
+                      <th scope="col" className="label px-3 py-2">Column</th>
+                      <th scope="col" className="label px-3 py-2">Status</th>
+                      <th scope="col" className="label px-3 py-2 text-right">Missing</th>
+                      <th scope="col" className="label px-3 py-2 text-right">Min</th>
+                      <th scope="col" className="label px-3 py-2 text-right">Mean</th>
+                      <th scope="col" className="label px-3 py-2 text-right">Max</th>
                     </tr>
                   </thead>
                   <tbody>
                     {summary.data.columns.map((column) => (
                       <tr
                         key={column.name}
-                        className="border-b border-line/60 transition-colors last:border-0 hover:bg-raised"
+                        className="border-b border-line/70 transition-colors last:border-0 hover:bg-surface"
                       >
-                        <td className="px-4 py-2 sm:px-5">
+                        <td className="px-3 py-1.5">
                           <span className="text-ink">{column.label}</span>
                           <span className="ml-1.5 text-2xs text-faint">{column.unit}</span>
                         </td>
-                        <td className="px-3 py-2">
+                        <td className="px-3 py-1.5">
                           {column.present ? (
                             <Badge tone="positive">Present</Badge>
                           ) : (
                             <Badge tone="negative">Absent</Badge>
                           )}
                         </td>
-                        <td className="tnum px-3 py-2 text-right text-body">
+                        <td className="tnum px-3 py-1.5 text-right text-body">
                           {column.missing_count} ({column.missing_pct}%)
                         </td>
-                        <td className="tnum px-3 py-2 text-right text-muted">
+                        <td className="tnum px-3 py-1.5 text-right text-muted">
                           {formatNumber(column.minimum)}
                         </td>
-                        <td className="tnum px-3 py-2 text-right text-body">
+                        <td className="tnum px-3 py-1.5 text-right text-body">
                           {formatNumber(column.mean, 2)}
                         </td>
-                        <td className="tnum px-4 py-2 text-right text-muted sm:px-5">
+                        <td className="tnum px-3 py-1.5 text-right text-muted">
                           {formatNumber(column.maximum)}
                         </td>
                       </tr>
                     ))}
                   </tbody>
-                </table>
-              </div>
+              </DataTable>
             </div>
           ) : null}
         </Panel>
@@ -294,9 +300,9 @@ export function DatasetsPage() {
                 event.preventDefault()
                 handleFile(event.dataTransfer.files?.[0])
               }}
-              className="flex flex-col items-center gap-3 rounded-[10px] border border-dashed border-line px-6 py-8 text-center"
+              className="flex flex-col items-center gap-2.5 rounded-[4px] border border-dashed border-line px-6 py-7 text-center"
             >
-              <FileUp className="size-5 text-muted" aria-hidden />
+              <FileUp className="size-4 text-faint" aria-hidden />
               <div>
                 <p className="text-sm font-medium text-ink">Drop a .csv file here</p>
                 <p className="measure mt-1 text-xs text-muted">
@@ -317,7 +323,7 @@ export function DatasetsPage() {
               />
               <Button
                 variant="primary"
-                icon={<Upload className="size-4" />}
+                icon={<Upload className="size-3.5" />}
                 loading={uploading}
                 onClick={() => fileInput.current?.click()}
               >
@@ -327,7 +333,7 @@ export function DatasetsPage() {
 
             {/* Column mapping appears only when the file needs it. */}
             {pendingFile && report && report.missing_required_columns.length > 0 && (
-              <div className="flex flex-col gap-3 rounded-[10px] border border-warning/35 bg-warning/8 px-4 py-3.5">
+              <div className="flex flex-col gap-3 rounded-[4px] border border-warning/40 bg-warning/8 px-4 py-3.5">
                 <p className="text-sm font-medium text-ink">
                   Map your columns to the fields LifeLens needs
                 </p>
@@ -417,32 +423,34 @@ export function DatasetsPage() {
                 )}
 
                 {report.row_errors.length > 0 && (
-                  <div className="-mx-4 overflow-x-auto sm:-mx-5">
-                    <p className="px-4 pb-1.5 text-xs font-medium text-muted sm:px-5">
+                  <div>
+                    <p className="label pb-1.5">
                       Row-level problems ({report.row_errors.length} shown)
                     </p>
-                    <table className="w-full min-w-[32rem] text-sm">
+                    <DataTable minWidth="32rem">
                       <thead>
-                        <tr className="border-b border-line text-left text-2xs uppercase tracking-wide text-faint">
-                          <th scope="col" className="px-4 py-2 font-medium sm:px-5">Row</th>
-                          <th scope="col" className="px-3 py-2 font-medium">Field</th>
-                          <th scope="col" className="px-3 py-2 font-medium">Value</th>
-                          <th scope="col" className="px-4 py-2 font-medium sm:px-5">Why it was rejected</th>
+                        <tr className="border-b border-line bg-surface text-left">
+                          <th scope="col" className="label px-3 py-2">Row</th>
+                          <th scope="col" className="label px-3 py-2">Field</th>
+                          <th scope="col" className="label px-3 py-2">Value</th>
+                          <th scope="col" className="label px-3 py-2">Why it was rejected</th>
                         </tr>
                       </thead>
                       <tbody>
                         {report.row_errors.slice(0, 50).map((rowError, index) => (
-                          <tr key={index} className="border-b border-line/60 last:border-0">
-                            <td className="tnum px-4 py-2 text-muted sm:px-5">
+                          <tr key={index} className="border-b border-line/70 last:border-0">
+                            <td className="tnum px-3 py-1.5 text-muted">
                               {rowError.row_number || '—'}
                             </td>
-                            <td className="px-3 py-2 text-body">{rowError.field ?? '—'}</td>
-                            <td className="px-3 py-2 text-muted">{rowError.value ?? '—'}</td>
-                            <td className="px-4 py-2 text-body sm:px-5">{rowError.message}</td>
+                            <td className="px-3 py-1.5 font-mono text-xs text-body">
+                              {rowError.field ?? '—'}
+                            </td>
+                            <td className="px-3 py-1.5 text-muted">{rowError.value ?? '—'}</td>
+                            <td className="px-3 py-1.5 text-body">{rowError.message}</td>
                           </tr>
                         ))}
                       </tbody>
-                    </table>
+                    </DataTable>
                   </div>
                 )}
               </div>
@@ -486,12 +494,11 @@ export function DatasetsPage() {
           ) : preview.error ? (
             <ErrorState message={preview.error} onRetry={preview.reload} />
           ) : preview.data && preview.data.rows.length > 0 ? (
-            <div className="-mx-4 overflow-x-auto sm:-mx-5">
-              <table className="w-full min-w-[60rem] text-sm">
+            <DataTable minWidth="60rem">
                 <thead>
-                  <tr className="border-b border-line text-left text-2xs uppercase tracking-wide text-faint">
+                  <tr className="border-b border-line bg-surface text-left">
                     {preview.data.columns.map((column) => (
-                      <th key={column} scope="col" className="whitespace-nowrap px-3 py-2 font-medium">
+                      <th key={column} scope="col" className="label whitespace-nowrap px-3 py-2">
                         {column}
                       </th>
                     ))}
@@ -501,10 +508,10 @@ export function DatasetsPage() {
                   {preview.data.rows.map((row, index) => (
                     <tr
                       key={String(row.id ?? index)}
-                      className="border-b border-line/60 transition-colors last:border-0 hover:bg-raised"
+                      className="border-b border-line/70 transition-colors last:border-0 hover:bg-surface"
                     >
                       {preview.data!.columns.map((column) => (
-                        <td key={column} className="tnum whitespace-nowrap px-3 py-1.5 text-body">
+                        <td key={column} className="tnum whitespace-nowrap px-3 py-1 text-body">
                           {row[column] === null || row[column] === ''
                             ? <span className="text-faint">—</span>
                             : String(row[column])}
@@ -513,8 +520,7 @@ export function DatasetsPage() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
-            </div>
+            </DataTable>
           ) : (
             <EmptyState
               title="Nothing to preview"
@@ -544,7 +550,7 @@ export function DatasetsPage() {
                 <Button
                   key={entry.source}
                   variant="danger"
-                  icon={<Trash2 className="size-3.5" />}
+                  icon={<Trash2 className="size-3" />}
                   disabled={entry.record_count === 0}
                   onClick={() => setResetTarget(entry.source)}
                 >

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import {
   BookOpen,
@@ -13,42 +13,40 @@ import {
 import clsx from 'clsx'
 import { DatasetBar } from './DatasetBar'
 import { useDataset } from '../../hooks/useDataset'
+import { enterRoute } from '../../utils/motion'
+
+/**
+ * Application chrome.
+ *
+ * This is a workspace, not a document: the toolbar and status bar are fixed, the
+ * navigation rail is fixed, and only the canvas scrolls. The previous shell let
+ * the whole page scroll as one column, which is what made every screen read as a
+ * stack of slabs regardless of what was in them.
+ */
 
 const NAV = [
-  { to: '/', label: 'Overview', icon: LayoutDashboard, hint: 'Dashboard' },
-  { to: '/check-in', label: 'Daily check-in', icon: NotebookPen, hint: 'Record today' },
-  { to: '/patterns', label: 'Pattern explorer', icon: Radar, hint: 'Clusters, correlations, rules' },
-  { to: '/insights', label: 'Insights', icon: Lightbulb, hint: 'Plain-English findings' },
-  { to: '/datasets', label: 'Datasets', icon: Database, hint: 'Import, export, switch' },
-  { to: '/about', label: 'About & method', icon: BookOpen, hint: 'How it works' },
+  { to: '/', label: 'Overview', short: 'Overview', icon: LayoutDashboard },
+  { to: '/check-in', label: 'Daily check-in', short: 'Check-in', icon: NotebookPen },
+  { to: '/patterns', label: 'Pattern explorer', short: 'Patterns', icon: Radar },
+  { to: '/insights', label: 'Insights', short: 'Insights', icon: Lightbulb },
+  { to: '/datasets', label: 'Datasets', short: 'Datasets', icon: Database },
+  { to: '/about', label: 'About & method', short: 'About', icon: BookOpen },
 ]
 
-function Wordmark() {
+function Mark() {
   return (
-    <div className="flex items-center gap-2.5">
-      <span
-        aria-hidden
-        className="grid size-8 shrink-0 place-items-center rounded-[8px] border border-accent/40 bg-accent/15"
-      >
-        {/* A lens: concentric rings reading inward, drawn rather than imported. */}
-        <svg viewBox="0 0 24 24" className="size-[18px]" fill="none" aria-hidden>
-          <circle cx="12" cy="12" r="8.5" stroke="var(--color-accent-ink)" strokeWidth="1.5" />
-          <circle cx="12" cy="12" r="4" stroke="var(--color-cyan)" strokeWidth="1.5" />
-          <circle cx="12" cy="12" r="1.25" fill="var(--color-ink)" />
-        </svg>
-      </span>
-      <span className="min-w-0">
-        <span className="block text-sm font-semibold tracking-tight text-ink">LifeLens AI</span>
-        <span className="block truncate text-2xs text-faint">Patterns behind your days</span>
-      </span>
-    </div>
+    <svg viewBox="0 0 24 24" className="size-4" fill="none" aria-hidden>
+      <circle cx="12" cy="12" r="8.5" stroke="var(--color-accent-ink)" strokeWidth="1.8" />
+      <circle cx="12" cy="12" r="3.75" stroke="var(--color-muted)" strokeWidth="1.8" />
+      <circle cx="12" cy="12" r="1.1" fill="var(--color-ink)" />
+    </svg>
   )
 }
 
 function NavItems({ onNavigate }: { onNavigate?: () => void }) {
   return (
-    <nav aria-label="Main" className="flex flex-col gap-0.5">
-      {NAV.map(({ to, label, icon: Icon, hint }) => (
+    <nav aria-label="Main" className="flex flex-col">
+      {NAV.map(({ to, label, icon: Icon }) => (
         <NavLink
           key={to}
           to={to}
@@ -56,23 +54,21 @@ function NavItems({ onNavigate }: { onNavigate?: () => void }) {
           onClick={onNavigate}
           className={({ isActive }) =>
             clsx(
-              'group flex items-start gap-2.5 rounded-[6px] px-2.5 py-2 transition-colors duration-150',
+              'relative flex items-center gap-2 py-1.5 pl-3 pr-2 text-xs transition-colors duration-150',
               isActive
-                ? 'bg-accent/14 text-ink'
-                : 'text-muted hover:bg-raised hover:text-body active:bg-line',
+                ? 'bg-surface font-medium text-ink'
+                : 'text-muted hover:bg-surface/60 hover:text-body',
             )
           }
         >
           {({ isActive }) => (
             <>
+              {isActive && <span aria-hidden className="absolute inset-y-0 left-0 w-0.5 bg-accent" />}
               <Icon
-                className={clsx('mt-0.5 size-4 shrink-0', isActive ? 'text-accent-ink' : 'text-faint')}
+                className={clsx('size-3.5 shrink-0', isActive ? 'text-accent-ink' : 'text-faint')}
                 aria-hidden
               />
-              <span className="min-w-0">
-                <span className="block text-sm font-medium">{label}</span>
-                <span className="block truncate text-2xs text-faint">{hint}</span>
-              </span>
+              {label}
             </>
           )}
         </NavLink>
@@ -85,9 +81,14 @@ export function AppShell() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const location = useLocation()
   const { dataset } = useDataset()
+  const canvasRef = useRef<HTMLDivElement>(null)
 
-  // Close the drawer on navigation and on Escape.
+  const current = NAV.find((entry) =>
+    entry.to === '/' ? location.pathname === '/' : location.pathname.startsWith(entry.to),
+  )
+
   useEffect(() => setMobileOpen(false), [location.pathname])
+
   useEffect(() => {
     if (!mobileOpen) return
     const onKey = (event: KeyboardEvent) => {
@@ -97,84 +98,93 @@ export function AppShell() {
     return () => window.removeEventListener('keydown', onKey)
   }, [mobileOpen])
 
+  // Reset the canvas scroll and settle the new view on navigation.
+  useEffect(() => {
+    canvasRef.current?.scrollTo({ top: 0 })
+    enterRoute(canvasRef.current)
+  }, [location.pathname])
+
   return (
-    <div className="min-h-screen bg-base lg:grid lg:grid-cols-[264px_1fr]">
-      {/* Desktop sidebar: a second, deeper neutral layer, per DESIGN.md. */}
-      <aside className="sticky top-0 hidden h-screen flex-col border-r border-line bg-base-deep px-3 py-4 lg:flex">
-        <div className="px-1.5">
-          <Wordmark />
+    <div className="workspace bg-base">
+      {/* Toolbar: one dense line. App mark, where you are, dataset controls. */}
+      <header className="flex items-center gap-3 border-b border-line bg-base-deep px-3">
+        <div className="flex shrink-0 items-center gap-2 py-1.5">
+          <button
+            type="button"
+            onClick={() => setMobileOpen(true)}
+            aria-label="Open navigation"
+            aria-expanded={mobileOpen}
+            className="rounded-[2px] p-1 text-muted transition-colors hover:bg-surface hover:text-ink lg:hidden"
+          >
+            <Menu className="size-4" aria-hidden />
+          </button>
+          <Mark />
+          <span className="text-xs font-semibold tracking-tight text-ink">LifeLens</span>
+          <span aria-hidden className="text-faint">
+            /
+          </span>
+          <span className="text-xs text-muted">{current?.short ?? 'Overview'}</span>
         </div>
-        <div className="mt-6 flex-1 overflow-y-auto">
-          <NavItems />
-        </div>
-        <div className="border-t border-line px-2.5 pt-3">
-          <p className="text-2xs text-faint">
-            Local-first. Not a medical or diagnostic tool.
-          </p>
-          {dataset && (
-            <p className="mt-1.5 text-2xs text-faint">
-              Analysing <span className="text-muted">{dataset.source_label.toLowerCase()}</span>
-            </p>
-          )}
-        </div>
-      </aside>
-
-      <div className="flex min-w-0 flex-col">
-        <header
-          className="sticky top-0 border-b border-line bg-base/85 backdrop-blur-sm"
-          style={{ zIndex: 'var(--z-sticky)' }}
-        >
-          <div className="flex items-center gap-3 px-4 py-2.5 lg:hidden">
-            <button
-              type="button"
-              onClick={() => setMobileOpen(true)}
-              aria-label="Open navigation"
-              aria-expanded={mobileOpen}
-              className="rounded-[6px] p-1.5 text-muted transition-colors hover:bg-raised hover:text-ink"
-            >
-              <Menu className="size-5" aria-hidden />
-            </button>
-            <Wordmark />
-          </div>
+        <div className="min-w-0 flex-1">
           <DatasetBar />
-        </header>
+        </div>
+      </header>
 
-        <main className="min-w-0 flex-1 px-4 py-5 sm:px-6 sm:py-6">
+      <div className="grid min-h-0 lg:grid-cols-[13rem_1fr]">
+        <aside className="hidden min-h-0 flex-col overflow-y-auto border-r border-line bg-base-deep py-1.5 lg:flex">
+          <NavItems />
+        </aside>
+
+        <div ref={canvasRef} className="canvas min-w-0 px-4 py-4 sm:px-6 sm:py-5">
           <Outlet />
-        </main>
-
-        <footer className="border-t border-line px-4 py-4 text-2xs text-faint sm:px-6">
-          LifeLens AI · mood and productivity are self-reported · associations shown are not causal
-          claims
-        </footer>
+        </div>
       </div>
 
-      {/* Mobile drawer */}
+      {/* Status bar: the state of the session, always visible, never narrated. */}
+      <footer className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-line bg-base-deep px-3 py-1 text-2xs text-faint">
+        <span className="flex items-center gap-1.5">
+          <span aria-hidden className="size-1.5 rounded-full bg-positive" />
+          Local
+        </span>
+        {dataset && (
+          <>
+            <span className="tnum">
+              {dataset.source_label} · {dataset.record_count.toLocaleString()} records
+            </span>
+            {dataset.is_synthetic && <span className="text-warning">synthetic</span>}
+          </>
+        )}
+        <span className="ml-auto">Self-reported data · associations, not causal claims</span>
+      </footer>
+
       {mobileOpen && (
-        <div className="lg:hidden" style={{ zIndex: 'var(--z-sidebar)', position: 'relative' }}>
+        <div className="lg:hidden">
           <button
             type="button"
             aria-label="Close navigation"
             onClick={() => setMobileOpen(false)}
-            className="fixed inset-0 bg-base-deep/70"
+            className="fixed inset-0 bg-base-deep/80"
             style={{ zIndex: 'var(--z-overlay)' }}
           />
           <div
-            className="enter fixed inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col border-r border-line bg-base-deep px-3 py-4"
+            className="fixed inset-y-0 left-0 flex w-60 max-w-[80vw] flex-col border-r border-line bg-base-deep"
             style={{ zIndex: 'var(--z-dialog)' }}
           >
-            <div className="flex items-center justify-between px-1.5">
-              <Wordmark />
+            <div className="flex items-center justify-between border-b border-line px-3 py-2">
+              <span className="flex items-center gap-2">
+                <Mark />
+                <span className="text-xs font-semibold text-ink">LifeLens</span>
+              </span>
               <button
                 type="button"
                 onClick={() => setMobileOpen(false)}
                 aria-label="Close navigation"
-                className="rounded-[6px] p-1.5 text-muted transition-colors hover:bg-raised hover:text-ink"
+                className="rounded-[2px] p-1 text-muted transition-colors hover:bg-surface hover:text-ink"
               >
-                <X className="size-4" aria-hidden />
+                <X className="size-3.5" aria-hidden />
               </button>
             </div>
-            <div className="mt-6 flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto py-1.5">
               <NavItems onNavigate={() => setMobileOpen(false)} />
             </div>
           </div>
